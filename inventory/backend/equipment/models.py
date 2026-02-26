@@ -1,5 +1,7 @@
 from django.db import models
 from student.models import Student
+
+
 # Create your models here.
 class Equipment(models.Model):
     EQUIPMENT_CHOICES = [
@@ -23,11 +25,15 @@ class Equipment(models.Model):
         ("TPD", "TRIPOD INTRO"),
         ("MANF", "TRIPOD ADV"),
         ("MONPD", "MONOPOD"),
-        ("XLR","XLR CABLE"),
+        ("XLR", "XLR CABLE"),
     ]
-    name = models.CharField(max_length=15,primary_key=True)
-    equipment_type = models.CharField(max_length=7,choices=EQUIPMENT_CHOICES)
-    owner = models.ForeignKey(Student, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=15, primary_key=True)
+    equipment_type = models.CharField(max_length=7, choices=EQUIPMENT_CHOICES)
+    owner = models.ForeignKey(
+        Student, on_delete=models.SET_DEFAULT, default="000000000"
+    )  # planning on having van buren be the dummy 000000000 osis number because its not safe to have him be the null option for ovsious reasons.
 
     def __str__(self):
-        status = "Available" if self.owner =="000000000" else "Checked out" # planning on having van buren be the dummy 000000000 osis number because its not safe to have him be the null option for ovsious reasons.
+        status = (
+            "Available" if self.owner.osis == "000000000" else "Checked out"
+        )  # planning on having van buren be the dummy 000000000 osis number because its not safe to have him be the null option for ovsious reasons.

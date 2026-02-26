@@ -1,102 +1,136 @@
 from django.urls import reverse
-from rest_framework import status
 from rest_framework.test import APITestCase
+from django.contrib.auth.models import User
 
-from inventory.backend.student.models import Student
+from student.models import Student
 from .models import Equipment
 
 
 class EquipmentTests(APITestCase):
-    def test_equipment_creation(self):
-        student_url = reverse("student-list")
-        equipment_url = reverse("equipment-list")
-        student_data={
-            "osis": "123456789",
-            "first_name": "Samuel",
-            "last_name": "Kipnis",
-            "email": "samuelkipnis@example.com",
-        }
-        equipment_data = {
-            "name": "BAG-01",
-            "equipment_type":"CAMERA BAG",
-            "owner":1
-        }
-        student_response = self.client.post(student_url, data=student_data, format="json")
-        equipment_response = self.client.post(equipment_url, data=equipment_data, format="json")
-        print("\n=== EQUIPMENT CREATION ===")
-        print("CREATION RESPONSE STATUS:", equipment_response.status_code)
-        print("CREATION RESPONSE DATA:", equipment_response.data)
-        print("EQUIPMENT COUNT AFTER CREATION:", Equipment.objects.count())
-        print("EQUIPMENT IN DB:", Equipment.objects.first().__dict__)
-        print("========================\n")
 
-        self.assertEqual(equipment_response.status_code, 201)
-        self.assertEqual(Equipment.objects.count(), 1)
-        self.assertEqual(Equipment.objects.first().name, "BAG-01")
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="pass123")
+        self.client.force_authenticate(user=self.user)
+
+        self.student1 = Student.objects.create(
+            osis="111111111",
+            first_name="Alice",
+            last_name="Smith",
+            email="alice@example.com",
+        )
+        self.student2 = Student.objects.create(
+            osis="222222222",
+            first_name="Bob",
+            last_name="Jones",
+            email="bob@example.com",
+        )
+
+        self.dummy_student = Student.objects.create(
+            osis="000000000",
+            first_name="Van",
+            last_name="Buren",
+            email="vanburen@example.com",
+        )
+
+        Equipment.objects.create(
+            name="BAG-01", equipment_type="BAG", owner=self.student1
+        )
+        Equipment.objects.create(
+            name="BAT-01", equipment_type="NXBAT", owner=self.student1
+        )
+        Equipment.objects.create(
+            name="MIC-01", equipment_type="BOOM", owner=self.student2
+        )
+        Equipment.objects.create(
+            name="TRIPOD-01", equipment_type="MANF", owner=self.dummy_student
+        )  
+
+    def test_equipment_creation(self):
+        print("\n================ Running test_equipment_creation ================\n")
+        student = Student.objects.create(
+            osis="333333333",
+            first_name="Samuel",
+            last_name="Kipnis",
+            email="samuel@example.com",
+        )
+
+        equipment_url = reverse("equipment-list")
+        equipment_data = {
+            "name": "CAM-01",
+            "equipment_type": "NX100",
+            "owner": student.osis,
+        }
+        print(f"Posting data: {equipment_data}")
+
+        response = self.client.post(equipment_url, equipment_data, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Equipment.objects.filter(name="CAM-01").count(), 1)
 
     def test_equipment_list(self):
-        Student.objects.create(
-            osis="121212121",
-            first_name="Samuel",
-            last_name="Samnis",
-            email="kipmuelsamnis@example.com",
-        )
-        Student.objects.create(
-            osis="676767676",
-            first_name="Kipmuel",
-            last_name="Samnis",
-            email="kipmuelsamns@example.com",
-        )
-        Equipment.objects.create(
-            name="BAG-01",
-            equipment_type="CAMERA BAG",
-            owner=1
-        )
-        
-        Equipment.objects.create(
-            name="BAG-02",
-            equipment_type="CAMERA BAG",
-            owner=2
-        )
-
+        print("\n================ Running test_equipment_list ================\n")
         url = reverse("equipment-list")
         response = self.client.get(url, format="json")
-        print("\n=== STUDENT LIST ===")
-        print("LIST RESPONSE STATUS:", response.status_code)
-        print("LIST RESPONSE DATA:", response.data)
-        print("ALL EQUIPMENT IN DB:")
-        for s in Equipment.objects.all():
-            print(s.__dict__)
-        print("===================\n")
+        print(f"Response status: {response.status_code}, data: {response.data}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 4)
+
+    def test_equipment_update(self):
+        print("\n================ Running test_equipment_update ================\n")
+        equipment = Equipment.objects.get(name="BAG-01")
+        url = reverse("equipment-detail", kwargs={"pk": equipment.name})
+        data = {"equipment_type": "NXBAT"}
+        print(f"Patching with data: {data}")
+
+        response = self.client.patch(url, data, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
+        equipment.refresh_from_db()
+        print(f"Updated equipment_type: {equipment.equipment_type}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(equipment.equipment_type, "NXBAT")
+
+    def test_filter_by_student(self):
+        print("\n================ Running test_filter_by_student ================\n")
+        url = reverse("equipment-list") + "?student_osis=111111111"
+        print(f"GET {url}")
+        response = self.client.get(url, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["name"], "BAG-01")
-        self.assertEqual(response.data[1]["name"], "BAG-02")
+        names = [e["name"] for e in response.data]
+        print(f"Names: {names}")
+        self.assertIn("BAG-01", names)
+        self.assertIn("BAT-01", names)
 
-    def test_equipment_update(self):
-        student = Student.objects.create(
-            osis="123456789",
-            first_name="Richard",
-            last_name="Kipnis",
-            email="richardkipnis@example.com",
-        )
-        equipment = Equipment.objects.create(
-            name="BAG-01",
-            equipment_type="CAMERA BAG",
-            owner=student
-        )
-
-        url = reverse("equipment-detail", kwargs={"pk": equipment.pk})
-        data = {"name": "BAG-02"}
-
-        response = self.client.patch(url, data, format="json")
-
-        equipment.refresh_from_db()
-        print("\n=== EQUIPMENT UPDATE ===")
-        print("UPDATE RESPONSE STATUS:", response.status_code)
-        print("UPDATE RESPONSE DATA:", response.data)
-        print("=====================\n")
+    def test_filter_by_equipment_type(self):
+        print("\n================ Running test_filter_by_equipment_type ================\n")
+        url = reverse("equipment-list") + "?equipment_type=BOOM"
+        print(f"GET {url}")
+        response = self.client.get(url, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(student.first_name, "Samuel")
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["name"], "MIC-01")
+
+    def test_filter_by_student_and_type(self):
+        print("\n================ Running test_filter_by_student_and_type ================\n")
+        url = reverse("equipment-list") + "?student_osis=111111111&equipment_type=NXBAT"
+        print(f"GET {url}")
+        response = self.client.get(url, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["name"], "BAT-01")
+
+    def test_filter_no_results(self):
+        print("\n================ Running test_filter_no_results ================\n")
+        url = reverse("equipment-list") + "?student_osis=999999999"
+        print(f"GET {url}")
+        response = self.client.get(url, format="json")
+        print(f"Response status: {response.status_code}, data: {response.data}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
