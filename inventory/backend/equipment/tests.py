@@ -61,7 +61,7 @@ class EquipmentTests(APITestCase):
             "owner": student.osis,
         }
         print(f"Posting data: {equipment_data}")
-
+        print(f"POST {equipment_url}")
         response = self.client.post(equipment_url, equipment_data, format="json")
         print(f"Response status: {response.status_code}, data: {response.data}")
         self.assertEqual(response.status_code, 201)
@@ -70,6 +70,7 @@ class EquipmentTests(APITestCase):
     def test_equipment_list(self):
         print("\n================ Running test_equipment_list ================\n")
         url = reverse("equipment-list")
+        print(f"GET: {url}")
         response = self.client.get(url, format="json")
         print(f"Response status: {response.status_code}, data: {response.data}")
         self.assertEqual(response.status_code, 200)
@@ -81,6 +82,7 @@ class EquipmentTests(APITestCase):
         url = reverse("equipment-detail", kwargs={"pk": equipment.name})
         data = {"equipment_type": "NXBAT"}
         print(f"Patching with data: {data}")
+        print(f"UPDATE: {url}")
 
         response = self.client.patch(url, data, format="json")
         print(f"Response status: {response.status_code}, data: {response.data}")
