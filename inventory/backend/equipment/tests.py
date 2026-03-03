@@ -33,16 +33,16 @@ class EquipmentTests(APITestCase):
         )
 
         Equipment.objects.create(
-            name="BAG-01", equipment_type="BAG", owner=self.student1
+            name="BAG-01", equipment_type="BAG", owner=self.student1, current_condition="GOOD"
         )
         Equipment.objects.create(
-            name="BAT-01", equipment_type="NXBAT", owner=self.student1
+            name="BAT-01", equipment_type="NXBAT", owner=self.student1, current_condition="GOOD"
         )
         Equipment.objects.create(
-            name="MIC-01", equipment_type="BOOM", owner=self.student2
+            name="MIC-01", equipment_type="BOOM", owner=self.student2, current_condition="DAMAGED"
         )
         Equipment.objects.create(
-            name="TRIPOD-01", equipment_type="MANF", owner=self.dummy_student
+            name="TRIPOD-01", equipment_type="MANF", owner=self.dummy_student, current_condition="GOOD"
         )  
 
     def test_equipment_creation(self):
@@ -59,6 +59,7 @@ class EquipmentTests(APITestCase):
             "name": "CAM-01",
             "equipment_type": "NX100",
             "owner": student.osis,
+            "current_condition": "GOOD",
         }
         print(f"Posting data: {equipment_data}")
         print(f"POST {equipment_url}")

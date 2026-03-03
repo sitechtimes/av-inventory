@@ -27,13 +27,20 @@ class Equipment(models.Model):
         ("MONPD", "MONOPOD"),
         ("XLR", "XLR CABLE"),
     ]
+    CONDITION_CHOICES = [
+        ("GOOD", "GOOD"),
+        ("DAMAGED", "DAMAGED"),
+        ("LOST", "LOST"),
+    ]
     name = models.CharField(max_length=15, primary_key=True)
     equipment_type = models.CharField(max_length=7, choices=EQUIPMENT_CHOICES)
     owner = models.ForeignKey(
         Student, on_delete=models.SET_DEFAULT, default="000000000"
-    )  # planning on having van buren be the dummy 000000000 osis number because its not safe to have him be the null option for ovsious reasons.
+    )  # planning on having van buren be the dummy 000000000 osis number because i didnt wanna have this be nullable if you wanna ill change it.
+    current_condition = models.CharField(
+        max_length=7, blank=True, choices=CONDITION_CHOICES
+    )
 
-    def __str__(self):
-        status = (
-            "Available" if self.owner.osis == "000000000" else "Checked out"
-        )  # planning on having van buren be the dummy 000000000 osis number because its not safe to have him be the null option for ovsious reasons.
+    @property
+    def status(self):
+        return "Available" if self.owner.osis == "000000000" else "Checked out"
