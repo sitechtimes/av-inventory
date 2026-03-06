@@ -1,25 +1,30 @@
 <template>
   <aside
-    class="fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white flex flex-col"
+    class="fixed top-0 left-0 h-screen w-44 bg-gray-900 text-white flex flex-col"
   >
-    <!-- Logo / Title -->
-    <div class="text-2xl font-bold p-6 border-b border-gray-700">MySite</div>
+    <div class="text-lg font-bold p-4 border-b border-gray-700">Inventory</div>
 
-    <!-- Navigation -->
-    <nav class="flex-1 p-4 space-y-2">
+    <nav class="flex-1 p-3 space-y-1">
       <NuxtLink
         to="/"
-        class="block px-4 py-2 rounded hover:bg-gray-700 transition"
+        class="block px-3 py-1.5 text-sm rounded hover:bg-gray-700 transition"
       >
         Home
       </NuxtLink>
 
-      <!-- <NuxtLink
-        to="/about"
-        class="block px-4 py-2 rounded hover:bg-gray-700 transition"
+      <NuxtLink
+        to="/items"
+        class="block px-3 py-1.5 text-sm rounded hover:bg-gray-700 transition"
       >
-        About Us
-      </NuxtLink> -->
+        Items
+      </NuxtLink>
+
+      <NuxtLink
+        to="/students"
+        class="block px-3 py-1.5 text-sm rounded hover:bg-gray-700 transition"
+      >
+        Students
+      </NuxtLink>
     </nav>
   </aside>
 </template>
