@@ -1,0 +1,46 @@
+from django.db import models
+from student.models import Student
+
+
+# Create your models here.
+class Equipment(models.Model):
+    EQUIPMENT_CHOICES = [
+        ("BAG", "CAMERA BAG"),
+        ("NXBAT", "CAMERA BATTERY"),
+        ("BOOM", "BOOM POLE"),
+        ("PHBKT", "PHONE BRACKET"),
+        ("TBBKT", "TABLET BRACKET"),
+        ("BCHG", "CAM BATTERY CHARGER"),
+        ("NX100", "CAMERA"),
+        ("HND", "HANDHELD MIC"),
+        ("HDPH", "HEADPHONES"),
+        ("IPAD", "IPAD"),
+        ("LAPCHRG", "LAPTOP CHARGER"),
+        ("LAV", "LAV MIC"),
+        ("LED", "LED LIGHT"),
+        ("TSC-SD", "TASCAM SD CARD"),
+        ("SD", "SD CARD"),
+        ("SHGN", "SHOTGUN MIC"),
+        ("TSCM", "TASCAM"),
+        ("TPD", "TRIPOD INTRO"),
+        ("MANF", "TRIPOD ADV"),
+        ("MONPD", "MONOPOD"),
+        ("XLR", "XLR CABLE"),
+    ]
+    CONDITION_CHOICES = [
+        ("GOOD", "GOOD"),
+        ("DAMAGED", "DAMAGED"),
+        ("LOST", "LOST"),
+    ]
+    name = models.CharField(max_length=15, primary_key=True)
+    equipment_type = models.CharField(max_length=7, choices=EQUIPMENT_CHOICES)
+    owner = models.ForeignKey(
+        Student, on_delete=models.SET_DEFAULT, default="000000000"
+    )  # planning on having van buren be the dummy 000000000 osis number because i didnt wanna have this be nullable if you wanna ill change it.
+    current_condition = models.CharField(
+        max_length=7, blank=True, choices=CONDITION_CHOICES
+    )
+
+    @property
+    def status(self):
+        return "Available" if self.owner.osis == "000000000" else "Checked out"
