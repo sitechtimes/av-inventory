@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'student',
     'equipment',
+    'scan_instances',
     'rest_framework',
     'rest_framework_simplejwt',
     'core'
