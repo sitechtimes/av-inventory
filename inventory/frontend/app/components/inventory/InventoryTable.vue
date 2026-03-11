@@ -5,6 +5,7 @@
     <!-- Selection bar -->
     <InventorySelectionBar
       :selected-count="selectedCount"
+      :all-selected="allSelected"
       @clear="$emit('clearSelection')"
       @select-all="$emit('selectAll')"
     />
@@ -22,7 +23,7 @@
           @change="toggleAll"
         />
       </div>
-      <div></div>
+
       <div class="flex items-center">Name</div>
       <div class="flex items-center">Quantity</div>
       <div class="flex items-center">Category</div>

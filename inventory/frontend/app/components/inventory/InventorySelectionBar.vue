@@ -18,6 +18,14 @@
           selected</span
         >
         <button
+          v-if="allSelected"
+          class="text-[#a0a0c0] text-[13px] hover:text-white underline underline-offset-2 transition-colors"
+          @click="$emit('clear')"
+        >
+          Clear All
+        </button>
+        <button
+          v-else
           class="text-[#a0a0c0] text-[13px] hover:text-white underline underline-offset-2 transition-colors"
           @click="$emit('selectAll')"
         >
@@ -58,6 +66,7 @@
 <script setup lang="ts">
 defineProps<{
   selectedCount: number;
+  allSelected: boolean;
 }>();
 
 defineEmits<{
