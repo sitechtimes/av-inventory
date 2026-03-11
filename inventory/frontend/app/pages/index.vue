@@ -23,6 +23,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 1,
     name: "Sony FX3 Cinema Camera",
+    student: "123456789 — Smith, J.",
     quantity: 3,
     category: "Camera",
     barcode: "012345678901",
@@ -30,6 +31,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 2,
     name: "Canon EOS R5 Body",
+    student: "234567890 — Doe, A.",
     quantity: 2,
     category: "Camera",
     barcode: "012345678902",
@@ -37,6 +39,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 3,
     name: "Shure SM7B Microphone",
+    student: "345678901 — Park, K.",
     quantity: 6,
     category: "Audio",
     barcode: "012345678903",
@@ -44,6 +47,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 4,
     name: "Rode NTG5 Shotgun Mic",
+    student: "456789012 — Chen, L.",
     quantity: 4,
     category: "Audio",
     barcode: "012345678904",
@@ -51,6 +55,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 5,
     name: "Blackmagic ATEM Mini Pro",
+    student: "567890123 — Garcia, M.",
     quantity: 2,
     category: "Switcher",
     barcode: "012345678905",
@@ -58,6 +63,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 6,
     name: "Sony UWP-D21 Wireless Kit",
+    student: "678901234 — Lee, S.",
     quantity: 5,
     category: "Audio",
     barcode: "012345678906",
@@ -65,6 +71,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 7,
     name: "Sennheiser EW 135P G4",
+    student: "789012345 — Wang, R.",
     quantity: 3,
     category: "Audio",
     barcode: "012345678907",
@@ -72,6 +79,7 @@ const items = ref<InventoryItem[]>([
   {
     id: 8,
     name: "Manfrotto 504X Tripod",
+    student: "890123456 — Patel, D.",
     quantity: 10,
     category: "Support",
     barcode: "012345678908",
@@ -79,13 +87,14 @@ const items = ref<InventoryItem[]>([
   {
     id: 9,
     name: "Aputure 300d Mark II Light",
+    student: "901234567 — Kim, T.",
     quantity: 4,
     category: "Lighting",
     barcode: "012345678909",
   },
 ]);
 
-const selectedIds = ref<Set<number>>(new Set([3, 5]));
+const selectedIds = ref<Set<number>>(new Set());
 const searchQuery = ref("");
 
 function toggleItem(id: number) {

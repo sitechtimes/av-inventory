@@ -13,7 +13,7 @@
     <!-- Column header -->
     <div
       v-if="selectedCount === 0"
-      class="grid grid-cols-[36px_44px_1fr_100px_130px_160px] px-4 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider border-b border-[#e8e8ee] flex-shrink-0"
+      class="grid grid-cols-[36px_44px_1fr_200px_100px_130px_160px] px-4 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider border-b border-[#e8e8ee] flex-shrink-0"
     >
       <div class="flex items-center">
         <input
@@ -23,8 +23,9 @@
           @change="toggleAll"
         />
       </div>
-
+      <div></div>
       <div class="flex items-center">Name</div>
+      <div class="flex items-center">Student</div>
       <div class="flex items-center">Quantity</div>
       <div class="flex items-center">Category</div>
       <div class="flex items-center">Barcode</div>
@@ -35,7 +36,7 @@
       <li
         v-for="item in items"
         :key="item.id"
-        class="grid grid-cols-[36px_44px_1fr_100px_130px_160px] items-center px-4 min-h-[52px] border-b border-[#f0f0f5] last:border-b-0 transition-colors cursor-default"
+        class="grid grid-cols-[36px_44px_1fr_200px_100px_130px_160px] items-center px-4 min-h-[52px] border-b border-[#f0f0f5] last:border-b-0 transition-colors cursor-default"
         :class="isSelected(item.id) ? 'bg-red-50' : 'hover:bg-[#fafafe]'"
       >
         <div class="flex items-center">
@@ -56,6 +57,11 @@
         <div class="flex items-center overflow-hidden">
           <span class="text-[13.5px] text-gray-800 truncate">{{
             item.name
+          }}</span>
+        </div>
+        <div class="flex items-center overflow-hidden">
+          <span class="text-[13px] text-gray-600 truncate">{{
+            item.student
           }}</span>
         </div>
         <div class="text-[13.5px] text-gray-600">{{ item.quantity }} units</div>
