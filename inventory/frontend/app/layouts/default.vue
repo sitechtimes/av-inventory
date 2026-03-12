@@ -14,13 +14,13 @@
           class="w-10 h-10 rounded-lg flex items-center justify-center bg-white/10 text-white"
           title="Inventory"
         >
-          <Icon name="inventory" />
+          <Icon name="heroicons:briefcase" />
         </button>
         <button
           class="w-10 h-10 rounded-lg flex items-center justify-center text-[#7a7a9a] hover:bg-white/10 hover:text-white transition-colors"
           title="Search"
         >
-          <Icon name="search" />
+          <Icon name="heroicons:magnifying-glass-16-solid" />
         </button>
       </div>
       <div class="flex flex-col items-center pb-3 gap-1">
@@ -28,7 +28,8 @@
           class="w-10 h-10 rounded-lg flex items-center justify-center text-[#7a7a9a] hover:bg-white/10 hover:text-white transition-colors"
           title="History"
         >
-          <Icon name="history" />
+          <!-- <Icon name="history" /> -->
+          AWEAWEOJ
         </button>
       </div>
     </nav>

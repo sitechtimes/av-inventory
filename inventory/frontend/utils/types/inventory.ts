@@ -1,7 +1,8 @@
 export type InventoryItem = {
   id: number;
   name: string;
-  student: string;
+  studentId: string;
+  studentName: string;
   quantity: number;
   category: string;
   barcode: string;

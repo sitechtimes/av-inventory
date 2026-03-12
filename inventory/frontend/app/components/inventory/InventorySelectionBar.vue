@@ -36,27 +36,31 @@
         <button
           class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
         >
-          <Icon name="edit" size="13px" /> Edit
+          <Icon
+            name="heroicons:arrow-top-right-on-square-16-solid"
+            size="13px"
+          />
+          Edit
         </button>
         <button
           class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
         >
-          <Icon name="move" size="13px" /> Move
+          <Icon name="tabler:arrows-move" size="13px" /> Move
         </button>
         <button
           class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
         >
-          <Icon name="export" size="13px" /> Export
+          <Icon name="heroicons:arrow-up-tray-16-solid" size="13px" /> Export
         </button>
         <button
           class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
         >
-          <Icon name="label" size="13px" /> Create Label
+          <Icon name="tabler:label-filled" size="13px" /> Create Label
         </button>
         <button
           class="w-8 h-8 flex items-center justify-center text-[#aaa] hover:text-white transition-colors"
         >
-          <Icon name="more" size="15px" />
+          <Icon name="heroicons:ellipsis-horizontal-16-solid" size="15px" />
         </button>
       </div>
     </div>
