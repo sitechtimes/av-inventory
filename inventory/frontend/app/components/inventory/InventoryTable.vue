@@ -2,7 +2,6 @@
   <div
     class="flex-1 overflow-y-auto bg-white rounded-xl border border-[#e8e8ee] flex flex-col"
   >
-    <!-- Selection bar -->
     <InventorySelectionBar
       :selected-count="selectedCount"
       :all-selected="allSelected"
@@ -10,7 +9,6 @@
       @select-all="$emit('selectAll')"
     />
 
-    <!-- Column header -->
     <div
       v-if="selectedCount === 0"
       class="grid grid-cols-[36px_44px_1fr_200px_100px_130px_160px] px-4 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider border-b border-[#e8e8ee] flex-shrink-0"
@@ -31,7 +29,6 @@
       <div class="flex items-center">Barcode</div>
     </div>
 
-    <!-- Item rows -->
     <ul class="flex-1 overflow-y-auto list-none">
       <li
         v-for="item in items"
@@ -100,8 +97,11 @@ const emit = defineEmits<{
 }>();
 
 function toggleAll(e: Event) {
-  (e.target as HTMLInputElement).checked
-    ? emit("selectAll")
-    : emit("clearSelection");
+  const checked = (e.target as HTMLInputElement).checked;
+  if (checked) {
+    emit("selectAll");
+  } else {
+    emit("clearSelection");
+  }
 }
 </script>

@@ -1,6 +1,5 @@
 ﻿<template>
   <div class="flex h-screen overflow-hidden font-sans">
-    <!-- Icon sidebar -->
     <nav
       class="w-14 bg-[#1a1a2e] flex flex-col items-center flex-shrink-0 z-10"
     >
@@ -33,7 +32,6 @@
       </div>
     </nav>
 
-    <!-- Main content -->
     <main class="flex-1 flex flex-col overflow-hidden bg-[#f7f7fb]">
       <slot />
     </main>

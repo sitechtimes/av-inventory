@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full overflow-hidden">
     <InventoryHeader @add="onAdd" />
     <InventorySearch v-model="searchQuery" />
-    <InventoryStats :total="stats.total" :total-qty="stats.totalQty" />
+    <InventoryStats :total="items.length" :total-qty="totalQty" />
 
     <div class="flex-1 overflow-y-auto mx-6 mb-6">
       <InventoryTable
@@ -98,9 +98,13 @@ const selectedIds = ref<Set<number>>(new Set());
 const searchQuery = ref("");
 
 function toggleItem(id: number) {
-  const s = new Set(selectedIds.value);
-  s.has(id) ? s.delete(id) : s.add(id);
-  selectedIds.value = s;
+  const next = new Set(selectedIds.value);
+  if (next.has(id)) {
+    next.delete(id);
+  } else {
+    next.add(id);
+  }
+  selectedIds.value = next;
 }
 
 function isSelected(id: number) {
@@ -108,7 +112,7 @@ function isSelected(id: number) {
 }
 
 function selectAll() {
-  selectedIds.value = new Set(items.value.map((i) => i.id));
+  selectedIds.value = new Set(items.value.map((item) => item.id));
 }
 
 function clearSelection() {
@@ -116,22 +120,24 @@ function clearSelection() {
 }
 
 function onAdd() {
-  // TODO: handle adding a new item
+  // not hooked up yet
 }
 
 const filteredItems = computed(() => {
   if (!searchQuery.value) return items.value;
-  const q = searchQuery.value.toLowerCase();
-  return items.value.filter((i) => i.name.toLowerCase().includes(q));
+  const search = searchQuery.value.toLowerCase();
+  return items.value.filter((item) => item.name.toLowerCase().includes(search));
 });
 
-const stats = computed(() => ({
-  total: items.value.length,
-  totalQty: items.value.reduce((s, i) => s + i.quantity, 0),
-}));
+const totalQty = computed(() => {
+  let total = 0;
+  for (const item of items.value) total += item.quantity;
+  return total;
+});
 
 const selectedCount = computed(() => selectedIds.value.size);
-const allSelected = computed(
-  () => selectedCount.value === items.value.length && items.value.length > 0,
-);
+
+const allSelected = computed(() => {
+  return items.value.length > 0 && selectedCount.value === items.value.length;
+});
 </script>
