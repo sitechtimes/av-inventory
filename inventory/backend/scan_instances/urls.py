@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import EquipmentViewSet
+from .views import ScanInstanceViewSet
 
 router = routers.DefaultRouter()
-router.register(r"equipment", EquipmentViewSet)
+router.register(r"scan-instances", ScanInstanceViewSet)
 urlpatterns = [
     path("", include(router.urls)),
 ]

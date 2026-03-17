@@ -28,4 +28,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("student/", include("student.urls")),
     path("equipment/", include("equipment.urls")),
+    path("scan-instances/", include("scan_instances.urls")),
 ]
