@@ -1,88 +1,80 @@
 <template>
-  <div
-    class="flex-1 overflow-y-auto bg-white rounded-xl border border-[#e8e8ee] flex flex-col"
-  >
+  <div class="panel-shell flex h-full min-h-0 flex-col overflow-hidden">
     <InventorySelectionBar
       :selected-count="selectedCount"
       :all-selected="allSelected"
       @clear="$emit('clearSelection')"
       @select-all="$emit('selectAll')"
+      @edit="$emit('editSelection')"
+      @move="$emit('moveSelection')"
+      @export="$emit('exportSelection')"
+      @label="$emit('labelSelection')"
+      @delete="$emit('deleteSelection')"
     />
 
-    <div
-      v-if="selectedCount === 0"
-      class="grid grid-cols-[36px_44px_1fr_110px_140px_100px_130px_160px] px-4 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider border-b border-[#e8e8ee] flex-shrink-0"
-    >
-      <div class="flex items-center">
-        <input
-          type="checkbox"
-          class="w-[15px] h-[15px] cursor-pointer accent-red-700"
-          :checked="allSelected"
-          @change="toggleAll"
-        />
-      </div>
-      <div></div>
-      <div class="flex items-center">Name</div>
-      <div class="flex items-center">Student ID</div>
-      <div class="flex items-center">Student Name</div>
-      <div class="flex items-center">Quantity</div>
-      <div class="flex items-center">Category</div>
-      <div class="flex items-center">Barcode</div>
+    <div class="min-h-0 flex-1 overflow-auto">
+      <table class="table table-zebra table-pin-rows">
+        <thead>
+          <tr>
+            <th class="w-12">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                :checked="allSelected"
+                @change="toggleAll"
+              />
+            </th>
+            <th>Item</th>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Barcode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in items"
+            :key="item.id"
+            :class="isSelected(item.id) ? 'active' : ''"
+          >
+            <td>
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                :checked="isSelected(item.id)"
+                @change="$emit('toggleItem', item.id)"
+              />
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:package" class="text-base-content/60" />
+                <span class="font-medium">{{ item.name }}</span>
+              </div>
+            </td>
+            <td class="font-mono text-xs">{{ item.studentId }}</td>
+            <td>{{ item.studentName }}</td>
+            <td>
+              <span class="badge badge-outline">{{ item.category }}</span>
+            </td>
+            <td>
+              <span class="badge" :class="statusClass(item.status)">
+                {{ item.status }}
+              </span>
+            </td>
+            <td class="font-mono text-xs">{{ item.barcode }}</td>
+          </tr>
+          <tr v-if="items.length === 0">
+            <td
+              colspan="7"
+              class="py-10 text-center text-sm text-base-content/60"
+            >
+              No items match the current filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <ul class="flex-1 overflow-y-auto list-none">
-      <li
-        v-for="item in items"
-        :key="item.id"
-        class="grid grid-cols-[36px_44px_1fr_110px_140px_100px_130px_160px] items-center px-4 min-h-[52px] border-b border-[#f0f0f5] last:border-b-0 transition-colors cursor-default"
-        :class="isSelected(item.id) ? 'bg-red-50' : 'hover:bg-[#fafafe]'"
-      >
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            class="w-[15px] h-[15px] cursor-pointer accent-red-700"
-            :checked="isSelected(item.id)"
-            @change="$emit('toggleItem', item.id)"
-          />
-        </div>
-        <div class="flex items-center">
-          <div
-            class="w-8 h-8 rounded-md bg-[#f0f0f8] text-[#8888aa] flex items-center justify-center"
-          >
-            <Icon name="heroicons:briefcase" size="18px" />
-          </div>
-        </div>
-        <div class="flex items-center overflow-hidden">
-          <span class="text-[13.5px] text-gray-800 truncate">{{
-            item.name
-          }}</span>
-        </div>
-        <div class="flex items-center overflow-hidden">
-          <span class="text-[13px] text-gray-600 font-mono truncate">{{
-            item.studentId
-          }}</span>
-        </div>
-        <div class="flex items-center overflow-hidden">
-          <span class="text-[13px] text-gray-600 truncate">{{
-            item.studentName
-          }}</span>
-        </div>
-        <div class="text-[13.5px] text-gray-600">{{ item.quantity }} units</div>
-        <div>
-          <span
-            class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#f0f0f8] rounded-full text-[12px] text-gray-600"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-[#aab0bf] flex-shrink-0"
-            ></span>
-            {{ item.category }}
-          </span>
-        </div>
-        <div class="text-[12px] text-gray-400 font-mono">
-          {{ item.barcode }}
-        </div>
-      </li>
-    </ul>
   </div>
 </template>
 
@@ -100,6 +92,11 @@ const emit = defineEmits<{
   (e: "toggleItem", id: number): void;
   (e: "selectAll"): void;
   (e: "clearSelection"): void;
+  (e: "editSelection"): void;
+  (e: "moveSelection"): void;
+  (e: "exportSelection"): void;
+  (e: "labelSelection"): void;
+  (e: "deleteSelection"): void;
 }>();
 
 function toggleAll(e: Event) {
@@ -109,5 +106,11 @@ function toggleAll(e: Event) {
   } else {
     emit("clearSelection");
   }
+}
+
+function statusClass(status: string) {
+  return status === "Available"
+    ? "badge-success badge-outline"
+    : "badge-warning badge-outline";
 }
 </script>

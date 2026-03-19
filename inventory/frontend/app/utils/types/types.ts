@@ -1,9 +1,7 @@
-export type InventoryItem = {
-  id: number;
-  name: string;
-  studentId: string;
-  studentName: string;
-  quantity: number;
-  category: string;
-  barcode: string;
-};
+export type {
+  InventoryItem,
+  InventoryStatus,
+  Student,
+  StudentHistoryAction,
+  StudentHistoryEntry,
+} from "~~/utils/types/inventory";

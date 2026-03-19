@@ -1,70 +1,53 @@
 <template>
-  <Transition name="slide-down">
-    <div
-      v-if="selectedCount > 0"
-      class="flex items-center justify-between px-4 py-2.5 bg-[#2d2d42] rounded-t-xl flex-shrink-0"
-    >
-      <div class="flex items-center gap-3">
-        <input
-          type="checkbox"
-          checked
-          class="w-[15px] h-[15px] cursor-pointer accent-red-700"
-          @change="$emit('clear')"
-        />
-        <span class="text-sm font-medium text-white"
-          >{{ selectedCount }} item{{
-            selectedCount !== 1 ? "s" : ""
-          }}
-          selected</span
-        >
-        <button
-          v-if="allSelected"
-          class="text-[#a0a0c0] text-[13px] hover:text-white underline underline-offset-2 transition-colors"
-          @click="$emit('clear')"
-        >
-          Clear All
-        </button>
-        <button
-          v-else
-          class="text-[#a0a0c0] text-[13px] hover:text-white underline underline-offset-2 transition-colors"
-          @click="$emit('selectAll')"
-        >
-          Select All
-        </button>
-      </div>
-      <div class="flex items-center gap-1">
-        <button
-          class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
-        >
-          <Icon
-            name="heroicons:arrow-top-right-on-square-16-solid"
-            size="13px"
-          />
-          Edit
-        </button>
-        <button
-          class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
-        >
-          <Icon name="tabler:arrows-move" size="13px" /> Move
-        </button>
-        <button
-          class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
-        >
-          <Icon name="heroicons:arrow-up-tray-16-solid" size="13px" /> Export
-        </button>
-        <button
-          class="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/20 rounded-md text-[#ddd] text-[12.5px] hover:bg-white/10 hover:text-white transition-colors"
-        >
-          <Icon name="tabler:label-filled" size="13px" /> Create Label
-        </button>
-        <button
-          class="w-8 h-8 flex items-center justify-center text-[#aaa] hover:text-white transition-colors"
-        >
-          <Icon name="heroicons:ellipsis-horizontal-16-solid" size="15px" />
-        </button>
-      </div>
+  <section
+    v-if="selectedCount > 0"
+    class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-100 px-4 py-2"
+  >
+    <div class="flex items-center gap-3">
+      <span class="badge badge-neutral">
+        {{ selectedCount }} item{{ selectedCount === 1 ? "" : "s" }} selected
+      </span>
+      <button
+        v-if="allSelected"
+        type="button"
+        class="btn-app-ghost"
+        @click="$emit('clear')"
+      >
+        Clear
+      </button>
+      <button
+        v-else
+        type="button"
+        class="btn-app-ghost"
+        @click="$emit('selectAll')"
+      >
+        Select all visible
+      </button>
     </div>
-  </Transition>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="btn-app-outline" @click="$emit('edit')">
+        <Icon name="lucide:pencil" class="text-base" />
+        Edit
+      </button>
+      <button type="button" class="btn-app-outline" @click="$emit('move')">
+        <Icon name="lucide:move" class="text-base" />
+        Move
+      </button>
+      <button type="button" class="btn-app-outline" @click="$emit('export')">
+        <Icon name="lucide:download" class="text-base" />
+        Export
+      </button>
+      <button type="button" class="btn-app-outline" @click="$emit('label')">
+        <Icon name="lucide:tag" class="text-base" />
+        Label
+      </button>
+      <button type="button" class="btn-app-danger" @click="$emit('delete')">
+        <Icon name="lucide:trash-2" class="text-base" />
+        Delete
+      </button>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -76,20 +59,10 @@ defineProps<{
 defineEmits<{
   (e: "clear"): void;
   (e: "selectAll"): void;
+  (e: "edit"): void;
+  (e: "move"): void;
+  (e: "export"): void;
+  (e: "label"): void;
+  (e: "delete"): void;
 }>();
 </script>
-
-<style scoped>
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.2s ease;
-}
-.slide-down-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>

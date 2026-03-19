@@ -1,44 +1,110 @@
 <template>
-  <div
-    class="flex items-center justify-between px-6 py-2.5 bg-white border-b border-[#e8e8ee] flex-shrink-0"
+  <section
+    class="flex flex-col gap-3 border-b border-base-300 px-4 py-3 md:px-6"
   >
-    <div
-      class="flex items-center gap-0 bg-[#f5f5fa] border border-[#e0e0e8] rounded-lg px-2.5 w-64"
-    >
-      <span class="text-gray-400"
-        ><Icon name="heroicons:magnifying-glass-16-solid" size="15px"
-      /></span>
-      <input
-        :value="modelValue"
-        class="flex-1 bg-transparent border-none outline-none px-2 py-1.5 text-[13.5px] text-gray-700 placeholder-gray-400"
-        placeholder="Search..."
-        @input="
-          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+    <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+      <label class="field-input flex items-center gap-2">
+        <Icon name="lucide:search" class="text-base-content/60" />
+        <input
+          :value="modelValue"
+          type="text"
+          class="w-full bg-transparent outline-none"
+          placeholder="Search by item, student, barcode"
+          @input="
+            $emit(
+              'update:modelValue',
+              ($event.target as HTMLInputElement).value,
+            )
+          "
+        />
+      </label>
+
+      <select
+        :value="category"
+        class="filter-select"
+        @change="
+          $emit('update:category', ($event.target as HTMLSelectElement).value)
         "
-      />
+      >
+        <option value="all">All categories</option>
+        <option v-for="value in categories" :key="value" :value="value">
+          {{ value }}
+        </option>
+      </select>
+
+      <select
+        :value="status"
+        class="filter-select"
+        @change="
+          $emit('update:status', ($event.target as HTMLSelectElement).value)
+        "
+      >
+        <option value="all">All statuses</option>
+        <option v-for="value in statuses" :key="value" :value="value">
+          {{ value }}
+        </option>
+      </select>
+
+      <button type="button" class="btn-app-outline" @click="$emit('clear')">
+        Clear Filters
+      </button>
     </div>
-    <div class="flex items-center gap-2">
+
+    <div class="flex flex-wrap items-center gap-2">
       <button
-        class="flex items-center gap-1 px-3 py-1.5 border border-[#e0e0e8] bg-white rounded-md text-[13px] text-gray-600 hover:bg-gray-50 transition-colors"
+        type="button"
+        class="btn-app-ghost"
+        @click="$emit('toggleSort', 'name')"
       >
         Name
-        <Icon name="heroicons:arrow-down-16-solid" size="13px" />
+        <Icon :name="sortIcon('name')" class="text-sm" />
       </button>
       <button
-        class="w-8 h-8 border border-[#e0e0e8] bg-white rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+        type="button"
+        class="btn-app-ghost"
+        @click="$emit('toggleSort', 'studentName')"
       >
-        <Icon name="heroicons:squares-2x2" size="15px" />
+        Student
+        <Icon :name="sortIcon('studentName')" class="text-sm" />
+      </button>
+      <button
+        type="button"
+        class="btn-app-ghost"
+        @click="$emit('toggleSort', 'barcode')"
+      >
+        Barcode
+        <Icon :name="sortIcon('barcode')" class="text-sm" />
       </button>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   modelValue: string;
+  category: string;
+  status: string;
+  categories: string[];
+  statuses: string[];
+  sortKey: "name" | "studentName" | "barcode";
+  sortDirection: "asc" | "desc";
 }>();
 
 defineEmits<{
   (e: "update:modelValue", value: string): void;
+  (e: "update:category", value: string): void;
+  (e: "update:status", value: string): void;
+  (e: "toggleSort", key: "name" | "studentName" | "barcode"): void;
+  (e: "clear"): void;
 }>();
+
+function sortIcon(key: "name" | "studentName" | "barcode") {
+  if (props.sortKey !== key) {
+    return "lucide:chevrons-up-down";
+  }
+
+  return props.sortDirection === "asc"
+    ? "lucide:arrow-up"
+    : "lucide:arrow-down";
+}
 </script>
