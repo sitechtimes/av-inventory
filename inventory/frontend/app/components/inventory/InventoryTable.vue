@@ -79,8 +79,6 @@
 </template>
 
 <script setup lang="ts">
-import type { InventoryItem } from "~~/utils/types/inventory";
-
 defineProps<{
   items: InventoryItem[];
   selectedCount: number;
