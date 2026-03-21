@@ -2,3 +2,5 @@
 *pyc
 .env
 inventory/backend/db.sqlite3
+node_modules
+venv

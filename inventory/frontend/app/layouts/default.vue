@@ -1,35 +1,59 @@
 ﻿<template>
-  <div class="flex h-screen overflow-hidden font-sans">
+  <div class="h-screen overflow-hidden bg-base-200">
+    <div
+      class="mx-auto flex h-full max-w-[1500px] flex-col gap-4 p-4 lg:flex-row"
+    >
+      <aside class="panel-shell w-full shrink-0 p-3 lg:w-64">
+        <div class="mb-5 flex items-center gap-3 px-2">
+          <div class="avatar placeholder">
+            <div class="h-10 w-10 rounded-lg bg-primary text-primary-content">
+              <span class="text-sm font-bold">AV</span>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">Inventory</p>
+          </div>
+        </div>
 
-    <!-- Icon sidebar -->
-    <nav class="w-14 bg-[#1a1a2e] flex flex-col items-center flex-shrink-0 z-10">
-      <div class="w-14 h-14 bg-red-700 flex items-center justify-center text-white font-bold text-[22px] tracking-tight flex-shrink-0 select-none">
-        S
-      </div>
-      <div class="flex-1 flex flex-col items-center pt-3 gap-1">
-        <button class="w-10 h-10 rounded-lg flex items-center justify-center bg-white/10 text-white" title="Inventory">
-          <Icon name="inventory" />
-        </button>
-        <button class="w-10 h-10 rounded-lg flex items-center justify-center text-[#7a7a9a] hover:bg-white/10 hover:text-white transition-colors" title="Search">
-          <Icon name="search" />
-        </button>
-      </div>
-      <div class="flex flex-col items-center pb-3 gap-1">
-        <button class="w-10 h-10 rounded-lg flex items-center justify-center text-[#7a7a9a] hover:bg-white/10 hover:text-white transition-colors" title="History">
-          <Icon name="history" />
-        </button>
-      </div>
-    </nav>
+        <nav class="grid grid-cols-3 gap-2 lg:grid-cols-1">
+          <NuxtLink
+            to="/"
+            class="btn-app btn-app-ghost justify-start"
+            :class="isActive('/') ? 'btn-active' : ''"
+          >
+            <Icon name="lucide:package" class="text-base" />
+            Inventory
+          </NuxtLink>
+          <NuxtLink
+            to="/students"
+            class="btn-app btn-app-ghost justify-start"
+            :class="isActive('/students') ? 'btn-active' : ''"
+          >
+            <Icon name="lucide:users" class="text-base" />
+            Students
+          </NuxtLink>
+          <NuxtLink
+            to="/add"
+            class="btn-app btn-app-ghost justify-start"
+            :class="isActive('/add') ? 'btn-active' : ''"
+          >
+            <Icon name="lucide:plus-square" class="text-base" />
+            Add
+          </NuxtLink>
+        </nav>
+      </aside>
 
-    <!-- Main content -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-[#f7f7fb]">
-      <slot />
-    </main>
-
+      <main class="panel-shell min-h-0 flex-1 overflow-hidden">
+        <slot />
+      </main>
+    </div>
   </div>
 </template>
 
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-</style>
+<script setup lang="ts">
+const route = useRoute();
+
+function isActive(path: string) {
+  return route.path === path;
+}
+</script>

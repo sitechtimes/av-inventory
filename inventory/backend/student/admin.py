@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Student
 from django.contrib.admin import register, ModelAdmin
+from .models import Student
 
-# Register your models here.
+
 @register(Student)
 class CustomStudentAdmin(ModelAdmin):
     list_display = (
@@ -13,5 +13,4 @@ class CustomStudentAdmin(ModelAdmin):
     )
 
     search_fields = ("osis", "first_name", "last_name", "email")
-    ordering = ("first_name","last_name")
-    
+    ordering = ("first_name", "last_name")

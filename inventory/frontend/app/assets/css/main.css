@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-base-200 text-base-content antialiased;
+  }
+}
+
+@layer components {
+  .panel-shell {
+    @apply rounded-panel border border-base-300 bg-base-100 shadow-panel;
+  }
+
+  .btn-app {
+    @apply btn btn-sm normal-case font-semibold;
+  }
+
+  .btn-app-primary {
+    @apply btn-app btn-primary;
+  }
+
+  .btn-app-outline {
+    @apply btn-app btn-outline;
+  }
+
+  .btn-app-ghost {
+    @apply btn-app btn-ghost;
+  }
+
+  .btn-app-danger {
+    @apply btn-app btn-error;
+  }
+
+  .filter-select {
+    @apply select select-bordered select-sm w-full sm:w-44;
+  }
+
+  .field-input {
+    @apply input input-bordered input-sm w-full;
+  }
+}
