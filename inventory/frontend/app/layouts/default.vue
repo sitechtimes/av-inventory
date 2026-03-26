@@ -41,6 +41,16 @@
             Add
           </NuxtLink>
         </nav>
+
+        <div class="mt-4 border-t border-base-300 pt-4">
+          <button
+            class="btn-app btn-app-outline w-full justify-start"
+            @click="handleLogout"
+          >
+            <Icon name="lucide:log-out" class="text-base" />
+            Logout
+          </button>
+        </div>
       </aside>
 
       <main class="panel-shell min-h-0 flex-1 overflow-hidden">
@@ -52,8 +62,14 @@
 
 <script setup lang="ts">
 const route = useRoute();
+const authStore = useAuthStore();
 
 function isActive(path: string) {
   return route.path === path;
+}
+
+async function handleLogout() {
+  authStore.logout();
+  await navigateTo("/login");
 }
 </script>
