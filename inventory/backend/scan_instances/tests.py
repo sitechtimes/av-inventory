@@ -1,10 +1,9 @@
-from django.urls import reverse
-from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
-from django.utils import timezone
-
-from student.models import Student
+from django.urls import reverse
 from equipment.models import Equipment, EquipmentType
+from rest_framework.test import APITestCase
+from student.models import Student
+
 from .models import ScanInstance
 
 DUMMY_OSIS = "000000000"
@@ -52,8 +51,8 @@ class ScanInstanceTests(APITestCase):
         )
 
     def test_checkout_creates_scan_and_assigns_owner(self):
-        url = reverse("scan-instances-list")
-        data = {"student": self.student1.id, "equipment": self.equip1.name}
+        url = reverse("scaninstance-list")
+        data = {"student": self.student1.pk, "equipment": self.equip1.name}
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -70,8 +69,8 @@ class ScanInstanceTests(APITestCase):
         self.equip1.owner = self.student1
         self.equip1.save()
 
-        url = reverse("scan-instances-list")
-        data = {"student": self.student2.id, "equipment": self.equip1.name}
+        url = reverse("scaninstance-list")
+        data = {"student": self.student2.pk, "equipment": self.equip1.name}
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertIn("Equipment already checked out", str(response.data))
@@ -81,31 +80,30 @@ class ScanInstanceTests(APITestCase):
         self.equip1.owner = self.student1
         self.equip1.save()
 
-        # Return equipment via PATCH: set owner back to dummy
-        url = reverse("scan-instances-detail", kwargs={"pk": scan.id})
+        url = reverse("scaninstance-detail", kwargs={"pk": scan.id})
         response = self.client.patch(
             url, {"equipment": self.equip1.name}, format="json"
         )
-
-        # Simulate return by manually setting owner to dummy (since PATCH only updates ScanInstance)
-        self.equip1.owner = self.dummy_student
-        self.equip1.save()
-
-        # Trigger perform_update logic
-        scan.refresh_from_db()
-        scan.return_time = timezone.now()
-        scan.save()
+        self.assertIn(response.status_code, [200, 202])
 
         scan.refresh_from_db()
-        self.assertIsNotNone(scan.return_time)
         self.equip1.refresh_from_db()
-        self.assertEqual(self.equip1.owner, self.dummy_student)
+
+        self.assertIsNotNone(
+            scan.return_time,
+            "PATCH should set return_time when returning equipment.",
+        )
+        self.assertEqual(
+            self.equip1.owner,
+            self.dummy_student,
+            "PATCH should reassign equipment owner to dummy student on return.",
+        )
 
     def test_scan_list_returns_all_scans(self):
         ScanInstance.objects.create(student=self.student1, equipment=self.equip1)
         ScanInstance.objects.create(student=self.student2, equipment=self.equip2)
 
-        url = reverse("scan-instances-list")
+        url = reverse("scaninstance-list")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
@@ -114,16 +112,18 @@ class ScanInstanceTests(APITestCase):
         ScanInstance.objects.create(student=self.student1, equipment=self.equip1)
         ScanInstance.objects.create(student=self.student2, equipment=self.equip2)
 
-        url = reverse("scan-instances-list") + f"?student={self.student1.id}"
+        url = reverse("scaninstance-list") + f"?student={self.student1.pk}"
         response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["student"], self.student1.id)
+        self.assertEqual(response.data[0]["student"], self.student1.pk)
 
     def test_filter_scans_by_equipment(self):
         ScanInstance.objects.create(student=self.student1, equipment=self.equip1)
         ScanInstance.objects.create(student=self.student2, equipment=self.equip2)
 
-        url = reverse("scan-instances-list") + f"?equipment={self.equip2.name}"
+        url = reverse("scaninstance-list") + f"?equipment={self.equip2.name}"
         response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["equipment"], self.equip2.name)
