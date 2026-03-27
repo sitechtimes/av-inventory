@@ -1,9 +1,8 @@
 from django.contrib import admin
-from .models import Equipment
 from django.contrib.admin import register, ModelAdmin
+from .models import Equipment
 
 
-# Register your models here.
 @register(Equipment)
 class CustomEquipmentAdmin(ModelAdmin):
     list_display = (

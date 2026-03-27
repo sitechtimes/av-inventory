@@ -9,7 +9,6 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Equipment.objects.all()
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
 

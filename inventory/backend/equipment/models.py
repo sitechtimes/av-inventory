@@ -43,8 +43,8 @@ class Equipment(models.Model):
     name = models.CharField(max_length=15, primary_key=True)
     equipment_type = models.ForeignKey(EquipmentType, on_delete=models.CASCADE)
     owner = models.ForeignKey(
-        Student, on_delete=models.SET_DEFAULT, default="000000000"
-    )  # planning on having van buren be the dummy 000000000 osis number because i didnt wanna have this be nullable if you wanna ill change it.
+        Student, on_delete=models.SET_DEFAULT, default="000000000"  # van buren is the dummy 000000000 osis so things dont have to be nullable
+    )
     current_condition = models.CharField(
         max_length=7, blank=True, choices=CONDITION_CHOICES
     )
