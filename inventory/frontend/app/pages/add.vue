@@ -8,7 +8,7 @@
       <form action="">
         <input
           ref="inputRef"
-          @keydown.prevent
+          @keydown="handleKeydown"
           @paste="handlePaste"
           @blur="inputRef?.focus()"
           v-model="inputValue"
@@ -28,6 +28,13 @@ const inputRef = ref<HTMLInputElement>();
 
 const handlePaste = (event: any) => {
   event.clipboardData.getData("text/plain");
+};
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+    return;
+  }
+  e.preventDefault();
 };
 
 watch(inputValue, (newValue) => {
