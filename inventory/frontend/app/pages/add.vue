@@ -14,7 +14,6 @@
           v-model="inputValue"
           type="text"
           autofocus
-          placeholder="Please scan the item!"
           class="opacity-0 border-none bg-transparent"
         />
       </form>
