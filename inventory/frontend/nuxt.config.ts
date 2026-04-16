@@ -3,4 +3,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxt/icon"],
   css: ["~/assets/css/main.css"],
+  runtimeConfig: {
+    public: {
+      apiBase: "",
+    },
+  },
 });
