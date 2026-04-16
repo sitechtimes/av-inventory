@@ -69,7 +69,7 @@ function isActive(path: string) {
 }
 
 async function handleLogout() {
-  authStore.logout();
+  await authStore.logout();
   await navigateTo("/login");
 }
 </script>
