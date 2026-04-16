@@ -68,9 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
         method: "POST",
         credentials: "include",
       });
-    } catch {
-      // Always clear local auth state even if backend is unreachable.
-    }
+    } catch {}
 
     isAuthenticated.value = false;
     username.value = null;
