@@ -37,6 +37,9 @@ export const useAuthStore = defineStore("auth", () => {
 
     const config = useRuntimeConfig();
     const apiBase = config.public.apiBase ?? "";
+    const headers = import.meta.server
+      ? useRequestHeaders(["cookie"])
+      : undefined;
 
     try {
       const response = await $fetch<{
@@ -44,6 +47,7 @@ export const useAuthStore = defineStore("auth", () => {
         username?: string;
       }>(`${apiBase}/api/auth/session/`, {
         credentials: "include",
+        headers,
       });
 
       isAuthenticated.value = response.authenticated;
