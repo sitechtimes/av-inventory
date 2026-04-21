@@ -48,10 +48,10 @@ const createEquipment = async () => {
 
 const fetchUsers = async () => {
   try {
-    const response = await $fetch("http://localhost:8000/student/", {
+    const response = await $fetch("http://localhost:8000/student/students/", {
       method: "GET",
     });
-    return response;
+    console.log(response);
   } catch (e) {
     console.error(e);
   }
