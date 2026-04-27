@@ -1,13 +1,12 @@
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
-from django.contrib.auth.models import User
-
 from student.models import Student
+
 from .models import Equipment
 
 
 class EquipmentTests(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="pass123")
         self.client.force_authenticate(user=self.user)
@@ -33,17 +32,29 @@ class EquipmentTests(APITestCase):
         )
 
         Equipment.objects.create(
-            name="BAG-01", equipment_type="BAG", owner=self.student1, current_condition="GOOD"
+            name="BAG-01",
+            equipment_type="BAG",
+            owner=self.student1,
+            current_condition="GOOD",
         )
         Equipment.objects.create(
-            name="BAT-01", equipment_type="NXBAT", owner=self.student1, current_condition="GOOD"
+            name="BAT-01",
+            equipment_type="NXBAT",
+            owner=self.student1,
+            current_condition="GOOD",
         )
         Equipment.objects.create(
-            name="MIC-01", equipment_type="BOOM", owner=self.student2, current_condition="DAMAGED"
+            name="MIC-01",
+            equipment_type="BOOM",
+            owner=self.student2,
+            current_condition="DAMAGED",
         )
         Equipment.objects.create(
-            name="TRIPOD-01", equipment_type="MANF", owner=self.dummy_student, current_condition="GOOD"
-        )  
+            name="TRIPOD-01",
+            equipment_type="MANF",
+            owner=self.dummy_student,
+            current_condition="GOOD",
+        )
 
     def test_equipment_creation(self):
         print("\n================ Running test_equipment_creation ================\n")
@@ -107,7 +118,9 @@ class EquipmentTests(APITestCase):
         self.assertIn("BAT-01", names)
 
     def test_filter_by_equipment_type(self):
-        print("\n================ Running test_filter_by_equipment_type ================\n")
+        print(
+            "\n================ Running test_filter_by_equipment_type ================\n"
+        )
         url = reverse("equipment-list") + "?equipment_type=BOOM"
         print(f"GET {url}")
         response = self.client.get(url, format="json")
@@ -118,7 +131,9 @@ class EquipmentTests(APITestCase):
         self.assertEqual(response.data[0]["name"], "MIC-01")
 
     def test_filter_by_student_and_type(self):
-        print("\n================ Running test_filter_by_student_and_type ================\n")
+        print(
+            "\n================ Running test_filter_by_student_and_type ================\n"
+        )
         url = reverse("equipment-list") + "?student_osis=111111111&equipment_type=NXBAT"
         print(f"GET {url}")
         response = self.client.get(url, format="json")
