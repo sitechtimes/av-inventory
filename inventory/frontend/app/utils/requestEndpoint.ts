@@ -69,7 +69,7 @@ export async function requestEndpoint<T>(
     options.body = JSON.stringify(body);
   }
 
-  const res = await fetch(config.public.backend + endpoint, options);
+  const res = await fetch(config.public.apiBase + endpoint, options);
   if (!bypassError && !res.ok) throw new Error(`Failed to fetch ${endpoint}`);
 
   const contentLength = res.headers.get("Content-Length");
