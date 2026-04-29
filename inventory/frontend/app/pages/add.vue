@@ -32,15 +32,6 @@ const status = ref<boolean>();
 
 const createEquipment = async () => {
   try {
-    const response = await $fetch("http://localhost:8000/equipment/", {
-      method: "POST",
-      body: {
-        // name: "Laptop",
-        // equipment_type: "Dell XPS 13",
-        // owner: 1200,
-        // current_condition: "New",
-      },
-    });
   } catch (e) {
     console.error(e);
   }
