@@ -27,3 +27,8 @@ export type StudentHistoryEntry = {
   action: StudentHistoryAction;
   date: string;
 };
+
+export type User = {
+  email: string;
+  password: string;
+};
