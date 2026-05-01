@@ -4,8 +4,8 @@ interface TokenResponse {
 }
 
 export const useAuthStore = defineStore("auth", () => {
-  const accessToken = useCookie<string | null>("access_token");
-  const refreshToken = useCookie<string | null>("refresh_token");
+  const accessToken = useCookie<string | null>("access_token", { maxAge: 60 * 60 * 24 * 7 });
+  const refreshToken = useCookie<string | null>("refresh_token", { maxAge: 60 * 60 * 24 * 7 });
 
   async function login(credentials: { username: string; password: string }) {
     const { data, error } = await tryRequestEndpoint<
