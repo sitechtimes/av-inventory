@@ -62,14 +62,39 @@ export async function requestEndpoint<T>(
   bypassError?: boolean,
 ): Promise<T | void> {
   const config = useRuntimeConfig();
-  const options: RequestInit = { credentials: "include" };
+  const options: RequestInit = {
+    credentials: "include",
+    headers: {} as Record<string, string>,
+  };
+
+  const accessToken = useCookie("access_token");
+  if (accessToken.value) {
+    (options.headers as Record<string, string>)["Authorization"] =
+      `Bearer ${accessToken.value}`;
+  }
+
   if (method) {
     options.method = method;
-    options.headers = { "Content-Type": "application/json" };
+    (options.headers as Record<string, string>)["Content-Type"] =
+      "application/json";
     options.body = JSON.stringify(body);
   }
 
   const res = await fetch(config.public.apiBase + endpoint, options);
+
+  // If the backend responds with 401 Unauthorized, automatically clear token and redirect to login
+  if (res.status === 401 && !bypassError) {
+    const accessToken = useCookie("access_token");
+    const refreshToken = useCookie("refresh_token");
+    accessToken.value = null;
+    refreshToken.value = null;
+
+    // Client-side redirection
+    if (import.meta.client) {
+      window.location.href = "/login";
+    }
+  }
+
   if (!bypassError && !res.ok) throw new Error(`Failed to fetch ${endpoint}`);
 
   const contentLength = res.headers.get("Content-Length");
