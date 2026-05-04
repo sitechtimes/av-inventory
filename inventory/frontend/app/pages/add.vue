@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full items-center justify-center p-4 md:p-6">
-    <button @click="fetchUsers">SELECT STUDENT</button>
+    <button @click="fetchStudents">SELECT STUDENT</button>
     <button @click="status = false">Scan out</button>
     <button @click="status = true">Scan in</button>
     <div class="panel-shell w-full max-w-xl p-6 text-center">
@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+const studentStore = useStudentStore();
 const inputValue = ref("");
 const inputRef = ref<HTMLInputElement>();
 
@@ -37,15 +38,8 @@ const createEquipment = async () => {
   }
 };
 
-const fetchUsers = async () => {
-  try {
-    const response = await $fetch("http://localhost:8000/student/students/", {
-      method: "GET",
-    });
-    console.log(response);
-  } catch (e) {
-    console.error(e);
-  }
+const fetchStudents = async () => {
+  await studentStore.fetchStudents();
 };
 
 const handlePaste = (event: any) => {
