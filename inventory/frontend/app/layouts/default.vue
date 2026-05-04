@@ -3,7 +3,7 @@
     <div
       class="mx-auto flex h-full max-w-[1500px] flex-col gap-4 p-4 lg:flex-row"
     >
-      <aside class="panel-shell w-full shrink-0 p-3 lg:w-64">
+      <aside class="panel-shell w-full shrink-0 p-3 lg:w-64 flex flex-col">
         <div class="mb-5 flex items-center gap-3 px-2">
           <div class="avatar placeholder">
             <div class="h-10 w-10 rounded-lg bg-primary text-primary-content">
@@ -41,6 +41,16 @@
             Add
           </NuxtLink>
         </nav>
+
+        <div class="mt-auto pt-4 border-t border-base-300">
+          <button
+            @click="authStore.logout"
+            class="btn-app btn-app-ghost justify-start w-full"
+          >
+            <Icon name="lucide:log-out" class="text-base" />
+            Logout
+          </button>
+        </div>
       </aside>
 
       <main class="panel-shell min-h-0 flex-1 overflow-hidden">
@@ -52,6 +62,7 @@
 
 <script setup lang="ts">
 const route = useRoute();
+const authStore = useAuthStore();
 
 function isActive(path: string) {
   return route.path === path;
