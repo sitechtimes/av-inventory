@@ -101,18 +101,18 @@
             type="button"
             @click="submitEquipmentStatus(true)"
             class="w-full btn btn-success"
-            :disabled="isLoading"
+            :disabled="equipmentStore.statusLoading"
           >
-            <span v-if="!isLoading">Check In</span>
+            <span v-if="!equipmentStore.statusLoading">Check In</span>
             <span v-else class="loading loading-spinner loading-sm"></span>
           </button>
           <button
             type="button"
             @click="submitEquipmentStatus(false)"
             class="w-full btn btn-warning"
-            :disabled="isLoading"
+            :disabled="equipmentStore.statusLoading"
           >
-            <span v-if="!isLoading">Check Out</span>
+            <span v-if="!equipmentStore.statusLoading">Check Out</span>
             <span v-else class="loading loading-spinner loading-sm"></span>
           </button>
         </div>
@@ -122,7 +122,7 @@
             type="button"
             @click="cancelStatusSelection"
             class="btn"
-            :disabled="isLoading"
+            :disabled="equipmentStore.statusLoading"
           >
             Cancel
           </button>
@@ -137,18 +137,20 @@
 
 <script setup lang="ts">
 const studentStore = useStudentStore();
+const equipmentStore = useEquipmentStore();
 const router = useRouter();
 
 const scannedEquipment = ref("");
 const selectedStudent = ref<Student>();
 const error = ref("");
 const successMessage = ref("");
-const isLoading = ref(false);
 
 const studentModalRef = ref<HTMLDialogElement>();
 const statusModalRef = ref<HTMLDialogElement>();
 
 const inputRef = ref<HTMLInputElement>();
+
+console.log(equipmentStore.equipment);
 
 /**
  * Handle keyboard events - prevent all except paste
@@ -222,7 +224,7 @@ const selectStudent = (student: Student) => {
  */
 const cancelStudentSelection = () => {
   scannedEquipment.value = "";
-  selectedStudent.value = null;
+  selectedStudent.value = undefined;
   studentModalRef.value?.close();
   inputRef.value?.focus();
 };
@@ -231,7 +233,7 @@ const cancelStudentSelection = () => {
  * Cancel status selection and go back
  */
 const cancelStatusSelection = () => {
-  selectedStudent.value = null;
+  selectedStudent.value = undefined;
   statusModalRef.value?.close();
   inputRef.value?.focus();
 };
@@ -239,51 +241,40 @@ const cancelStatusSelection = () => {
 /**
  * Submit equipment status change to backend
  */
-const submitEquipmentStatus = async (checkIn: boolean) => {
-  // Validation
-  if (!scannedEquipment.value || !selectedStudent.value) {
-    error.value = "Missing equipment or student information.";
-    return;
-  }
+// const submitEquipmentStatus = async (checkIn: boolean) => {
+//   // Validation
+//   if (!scannedEquipment.value || !selectedStudent.value) {
+//     error.value = "Missing equipment or student information.";
+//     return;
+//   }
 
-  isLoading.value = true;
+//   try {
+//     const result = await equipmentStore.submitEquipmentStatus(
+//       scannedEquipment.value,
+//       selectedStudent.value,
+//       checkIn,
+//     );
 
-  try {
-    const payload = {
-      equipment_name: scannedEquipment.value,
-      student_osis: selectedStudent.value.osis,
-      status: checkIn ? "in" : "out",
-    };
+//     if (result.success) {
+//       successMessage.value = result.message;
+//       statusModalRef.value?.close();
 
-    const result = await tryRequestEndpoint(
-      "equipment/equipment/",
-      "POST",
-      payload,
-    );
+//       // Reset form
+//       setTimeout(() => {
+//         scannedEquipment.value = "";
+//         selectedStudent.value = undefined;
+//         clearSuccessMessage();
+//         inputRef.value?.focus();
+//       }, 2000);
+//     }
+//   } catch (e) {
+//     error.value =
+//       e instanceof Error ? e.message : "An error occurred. Please try again.";
+//     console.error("Error submitting equipment status:", e);
+//   }
+// };
 
-    if (!("error" in result) && result.data) {
-      // Success
-      successMessage.value = `Equipment ${checkIn ? "checked in" : "checked out"} successfully!`;
-      statusModalRef.value?.close();
-
-      // Reset form
-      setTimeout(() => {
-        scannedEquipment.value = "";
-        selectedStudent.value = null;
-        clearSuccessMessage();
-        inputRef.value?.focus();
-      }, 2000);
-    } else {
-      throw new Error("Failed to update equipment status");
-    }
-  } catch (e) {
-    error.value =
-      e instanceof Error ? e.message : "An error occurred. Please try again.";
-    console.error("Error submitting equipment status:", e);
-  } finally {
-    isLoading.value = false;
-  }
-};
+// ...existing code...
 
 /**
  * Clear error message
