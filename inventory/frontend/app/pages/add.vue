@@ -66,7 +66,7 @@
             @click="selectStudent(student)"
             class="w-full btn btn-ghost justify-start text-left"
           >
-            {{ student.firstName }} {{ student.lastName }}
+            {{ student.first_name }} {{ student.osis }}
           </button>
         </div>
 
@@ -88,8 +88,7 @@
         <p class="text-sm text-base-content/70 mb-4">
           Student:
           <span class="font-semibold"
-            >{{ selectedStudent?.firstName }}
-            {{ selectedStudent?.lastName }}</span
+            >{{ selectedStudent?.first_name }} {{ selectedStudent?.osis }}</span
           >
         </p>
         <p class="text-sm text-base-content/70 mb-6">
@@ -140,29 +139,24 @@
 const studentStore = useStudentStore();
 const router = useRouter();
 
-// State
 const scannedEquipment = ref("");
-const selectedStudent = ref<any>(null);
+const selectedStudent = ref<Student>();
 const error = ref("");
 const successMessage = ref("");
 const isLoading = ref(false);
 
-// Modal references
 const studentModalRef = ref<HTMLDialogElement>();
 const statusModalRef = ref<HTMLDialogElement>();
 
-// Input reference
 const inputRef = ref<HTMLInputElement>();
 
 /**
  * Handle keyboard events - prevent all except paste
  */
 const handleKeydown = (e: KeyboardEvent) => {
-  // Allow paste shortcuts
   if ((e.ctrlKey || e.metaKey) && e.key === "v") {
     return;
   }
-  // Prevent all other input
   e.preventDefault();
 };
 
@@ -182,12 +176,10 @@ const handlePaste = (event: ClipboardEvent) => {
   clearError();
   clearSuccessMessage();
 
-  // Fetch students if not already fetched
   if (studentStore.students.length === 0) {
     fetchStudents();
   }
 
-  // Open student selection modal
   setTimeout(() => {
     studentModalRef.value?.showModal();
   }, 100);
@@ -210,7 +202,7 @@ const fetchStudents = async () => {
 /**
  * Handle student selection
  */
-const selectStudent = (student: any) => {
+const selectStudent = (student: Student) => {
   if (!student || !student.osis) {
     error.value = "Invalid student selection.";
     return;

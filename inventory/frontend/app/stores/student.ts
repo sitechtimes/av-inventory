@@ -1,12 +1,5 @@
 import { defineStore } from "pinia";
 
-interface Student {
-  osis: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export const useStudentStore = defineStore("students", () => {
   const students = ref<Student[]>([]);
   const loading = ref(false);
