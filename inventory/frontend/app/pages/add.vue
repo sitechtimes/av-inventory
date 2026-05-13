@@ -1,14 +1,10 @@
 <template>
   <div class="flex h-full items-center justify-center p-4 md:p-6">
-    <!-- Hidden barcode input -->
-    <input
-      ref="inputRef"
+    <!-- Barcode input (hidden) -->
+    <BarcodeInput
       v-model="scannedEquipment"
-      @keydown="handleKeydown"
-      @paste="handlePaste"
-      type="text"
-      autofocus
-      class="opacity-0 pointer-events-none"
+      ref="barcodeInputRef"
+      @paste="handleEquipmentScanned"
     />
 
     <!-- Main scanning interface -->
@@ -16,122 +12,34 @@
       <h2 class="text-2xl font-bold mb-4">Equipment Check-in/out</h2>
       <p class="text-base-content/70 mb-6">Scan equipment barcode to begin</p>
 
-      <!-- Error display -->
-      <div v-if="error" class="alert alert-error mb-4">
-        <span>{{ error }}</span>
-        <button @click="clearError" class="btn btn-sm btn-ghost">
-          Dismiss
-        </button>
-      </div>
-
-      <!-- Success display -->
-      <div v-if="successMessage" class="alert alert-success mb-4">
-        <span>{{ successMessage }}</span>
-      </div>
-
-      <!-- Current status display -->
-      <div v-if="scannedEquipment" class="bg-base-300 p-4 rounded-lg mb-6">
-        <p class="text-sm text-base-content/70">Scanned Equipment:</p>
-        <p class="text-lg font-semibold">{{ scannedEquipment }}</p>
-      </div>
+      <!-- Display component for alerts and equipment info -->
+      <EquipmentDisplay
+        :error="error"
+        :success-message="successMessage"
+        :scanned-equipment="scannedEquipment"
+        @clear-error="clearError"
+      />
     </div>
 
     <!-- Student selection modal -->
-    <dialog ref="studentModalRef" class="modal">
-      <form method="dialog" class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Select Student</h3>
-        <div class="divider"></div>
-
-        <div v-if="studentStore.loading" class="text-center py-8">
-          <span class="loading loading-spinner loading-lg"></span>
-          <p class="text-base-content/70 mt-4">Loading students...</p>
-        </div>
-
-        <div v-else-if="studentStore.error" class="alert alert-error mb-4">
-          <span>{{ studentStore.error }}</span>
-        </div>
-
-        <div
-          v-else-if="studentStore.students.length === 0"
-          class="text-center py-8"
-        >
-          <p class="text-base-content/70">No students found</p>
-        </div>
-
-        <div v-else class="space-y-2 max-h-96 overflow-y-auto">
-          <button
-            v-for="student in studentStore.students"
-            :key="student.osis"
-            type="button"
-            @click="selectStudent(student)"
-            class="w-full btn btn-ghost justify-start text-left"
-          >
-            {{ student.first_name }} {{ student.osis }}
-          </button>
-        </div>
-
-        <div class="modal-action">
-          <button type="button" @click="cancelStudentSelection" class="btn">
-            Cancel
-          </button>
-        </div>
-      </form>
-      <form method="dialog" class="modal-backdrop">
-        <button @click="cancelStudentSelection">close</button>
-      </form>
-    </dialog>
+    <StudentSelectModal
+      ref="studentModalRef"
+      :students="studentStore.students"
+      :loading="studentStore.loading"
+      :error="studentStore.error"
+      @select="selectStudent"
+      @cancel="cancelStudentSelection"
+    />
 
     <!-- Status selection modal -->
-    <dialog ref="statusModalRef" class="modal">
-      <form method="dialog" class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Select Status</h3>
-        <p class="text-sm text-base-content/70 mb-4">
-          Student:
-          <span class="font-semibold"
-            >{{ selectedStudent?.first_name }} {{ selectedStudent?.osis }}</span
-          >
-        </p>
-        <p class="text-sm text-base-content/70 mb-6">
-          Equipment: <span class="font-semibold">{{ scannedEquipment }}</span>
-        </p>
-        <div class="divider"></div>
-
-        <div class="space-y-2">
-          <button
-            type="button"
-            @click="submitEquipmentStatus(true)"
-            class="w-full btn btn-success"
-            :disabled="equipmentStore.statusLoading"
-          >
-            <span v-if="!equipmentStore.statusLoading">Check In</span>
-            <span v-else class="loading loading-spinner loading-sm"></span>
-          </button>
-          <button
-            type="button"
-            @click="submitEquipmentStatus(false)"
-            class="w-full btn btn-warning"
-            :disabled="equipmentStore.statusLoading"
-          >
-            <span v-if="!equipmentStore.statusLoading">Check Out</span>
-            <span v-else class="loading loading-spinner loading-sm"></span>
-          </button>
-        </div>
-
-        <div class="modal-action">
-          <button
-            type="button"
-            @click="cancelStatusSelection"
-            class="btn"
-            :disabled="equipmentStore.statusLoading"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-      <form method="dialog" class="modal-backdrop">
-        <button @click="cancelStatusSelection">close</button>
-      </form>
-    </dialog>
+    <StatusSelectModal
+      ref="statusModalRef"
+      :selected-student="selectedStudent"
+      :equipment-name="scannedEquipment"
+      :loading="equipmentStore.statusLoading"
+      @submit="submitEquipmentStatus"
+      @cancel="cancelStatusSelection"
+    />
   </div>
 </template>
 
@@ -140,50 +48,38 @@ const studentStore = useStudentStore();
 const equipmentStore = useEquipmentStore();
 const router = useRouter();
 
+// State
 const scannedEquipment = ref("");
 const selectedStudent = ref<Student>();
 const error = ref("");
 const successMessage = ref("");
 
-const studentModalRef = ref<HTMLDialogElement>();
-const statusModalRef = ref<HTMLDialogElement>();
-
-const inputRef = ref<HTMLInputElement>();
-
-console.log(equipmentStore.equipment);
+// Component refs
+const barcodeInputRef = ref();
+const studentModalRef = ref();
+const statusModalRef = ref();
 
 /**
- * Handle keyboard events - prevent all except paste
+ * Handle equipment scanned event
  */
-const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === "v") {
-    return;
-  }
-  e.preventDefault();
-};
-
-/**
- * Handle paste events - extract text and trigger equipment scan flow
- */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault();
-  const pastedText = event.clipboardData?.getData("text/plain")?.trim();
-
-  if (!pastedText) {
+const handleEquipmentScanned = async (equipmentName: string) => {
+  if (!equipmentName) {
     error.value = "No text pasted. Please try again.";
     return;
   }
 
-  scannedEquipment.value = pastedText;
+  scannedEquipment.value = equipmentName;
   clearError();
   clearSuccessMessage();
 
+  // Fetch students if needed
   if (studentStore.students.length === 0) {
-    fetchStudents();
+    await fetchStudents();
   }
 
+  // Open student selection modal
   setTimeout(() => {
-    studentModalRef.value?.showModal();
+    studentModalRef.value?.open();
   }, 100);
 };
 
@@ -211,11 +107,10 @@ const selectStudent = (student: Student) => {
   }
 
   selectedStudent.value = student;
-  studentModalRef.value?.close();
 
   // Open status selection modal
   setTimeout(() => {
-    statusModalRef.value?.showModal();
+    statusModalRef.value?.open();
   }, 100);
 };
 
@@ -225,56 +120,52 @@ const selectStudent = (student: Student) => {
 const cancelStudentSelection = () => {
   scannedEquipment.value = "";
   selectedStudent.value = undefined;
-  studentModalRef.value?.close();
-  inputRef.value?.focus();
+  barcodeInputRef.value?.focus();
 };
 
 /**
- * Cancel status selection and go back
+ * Cancel status selection
  */
 const cancelStatusSelection = () => {
   selectedStudent.value = undefined;
-  statusModalRef.value?.close();
-  inputRef.value?.focus();
+  barcodeInputRef.value?.focus();
 };
 
 /**
- * Submit equipment status change to backend
+ * Submit equipment status change
  */
-// const submitEquipmentStatus = async (checkIn: boolean) => {
-//   // Validation
-//   if (!scannedEquipment.value || !selectedStudent.value) {
-//     error.value = "Missing equipment or student information.";
-//     return;
-//   }
+const submitEquipmentStatus = async (checkIn: boolean) => {
+  // Validation
+  if (!scannedEquipment.value || !selectedStudent.value) {
+    error.value = "Missing equipment or student information.";
+    return;
+  }
 
-//   try {
-//     const result = await equipmentStore.submitEquipmentStatus(
-//       scannedEquipment.value,
-//       selectedStudent.value,
-//       checkIn,
-//     );
+  try {
+    const result = await equipmentStore.submitEquipmentStatus(
+      scannedEquipment.value,
+      selectedStudent.value,
+      checkIn,
+    );
 
-//     if (result.success) {
-//       successMessage.value = result.message;
-//       statusModalRef.value?.close();
+    if (result.success) {
+      successMessage.value = result.message;
+      statusModalRef.value?.close();
 
-//       // Reset form
-//       setTimeout(() => {
-//         scannedEquipment.value = "";
-//         selectedStudent.value = undefined;
-//         clearSuccessMessage();
-//         inputRef.value?.focus();
-//       }, 2000);
-//     }
-//   } catch (e) {
-//     error.value =
-//       e instanceof Error ? e.message : "An error occurred. Please try again.";
-//     console.error("Error submitting equipment status:", e);
-//   }
-// };
-
-// ...existing code...
+      // Reset form after showing success
+      setTimeout(() => {
+        scannedEquipment.value = "";
+        selectedStudent.value = undefined;
+        clearSuccessMessage();
+        barcodeInputRef.value?.focus();
+      }, 2000);
+    }
+  } catch (e) {
+    error.value =
+      e instanceof Error ? e.message : "An error occurred. Please try again.";
+    console.error("Error submitting equipment status:", e);
+  }
+};
 
 /**
  * Clear error message
@@ -292,7 +183,7 @@ const clearSuccessMessage = () => {
 
 // Auto-focus input on mount
 onMounted(() => {
-  inputRef.value?.focus();
+  barcodeInputRef.value?.focus();
   fetchStudents();
 });
 </script>
