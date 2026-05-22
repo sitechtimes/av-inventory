@@ -1,5 +1,3 @@
-//ben what is this im not even gonna touch or look at this godforsaken file and just make other stores that might have the same function :D
-
 import { defineStore } from "pinia";
 import {
   placeholderInventory,
