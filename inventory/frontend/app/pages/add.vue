@@ -1,13 +1,16 @@
 <template>
   <div class="flex h-full items-center justify-center p-4 md:p-6">
-    <button @click="fetchUsers">SELECT STUDENT</button>
-    <button @click="status = false">Scan out</button>
-    <button @click="status = true">Scan in</button>
+    <!-- Barcode input (hidden) -->
+    <BarcodeInput
+      v-model="scannedEquipment"
+      ref="barcodeInputRef"
+      @paste="handleEquipmentScanned"
+    />
+
     <div class="panel-shell w-full max-w-xl p-6 text-center">
       <h2 class="text-2xl font-bold mb-4">Equipment Check-in/out</h2>
       <p class="text-base-content/70 mb-6">Scan equipment barcode to begin</p>
 
-      <!-- Display component for alerts and equipment info -->
       <EquipmentDisplay
         :error="error"
         :success-message="successMessage"
@@ -53,18 +56,6 @@ const successMessage = ref("");
 const barcodeInputRef = ref();
 const studentModalRef = ref();
 const statusModalRef = ref();
-
-/**
- * Fetch users/students
- */
-const fetchUsers = async () => {
-  try {
-    await studentStore.fetchStudents();
-  } catch (e) {
-    error.value = "Failed to load students. Please try again.";
-    console.error("Error fetching students:", e);
-  }
-};
 
 /**
  * Handle equipment scanned event
