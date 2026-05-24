@@ -16,7 +16,10 @@ export const useStudentStore = defineStore("students", () => {
       );
 
       if (!("error" in result) && result.data) {
-        students.value = result.data;
+        // Filter out the teacher/admin account
+        students.value = result.data.filter(
+          (student) => student.osis !== "000000000",
+        );
       } else {
         throw new Error("Failed to fetch students");
       }

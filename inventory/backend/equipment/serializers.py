@@ -11,3 +11,4 @@ class EquipmentSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj):
         return obj.status
+    

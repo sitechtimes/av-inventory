@@ -29,6 +29,19 @@
         </button>
       </div>
 
+      <div class="divider"></div>
+
+      <!-- Checkout Button -->
+      <button
+        type="button"
+        @click="checkout"
+        :disabled="checkoutLoading"
+        class="w-full btn btn-success"
+      >
+        <span v-if="!checkoutLoading">Checkout</span>
+        <span v-else class="loading loading-spinner loading-sm"></span>
+      </button>
+
       <div class="modal-action">
         <button type="button" @click="cancel" class="btn">Cancel</button>
       </div>
@@ -40,18 +53,23 @@
 </template>
 
 <script setup lang="ts">
+const equipmentStore = useEquipmentStore();
+
 const props = defineProps<{
   students: Student[];
   loading: boolean;
   error: string | null;
+  scannedEquipment: string;
 }>();
 
 const emit = defineEmits<{
   select: [student: Student];
   cancel: [];
+  quickCheckoutSuccess: [];
 }>();
 
 const modalRef = ref<HTMLDialogElement>();
+const checkoutLoading = ref(false);
 
 const selectStudent = (student: Student) => {
   if (!student || !student.osis) {
@@ -59,6 +77,26 @@ const selectStudent = (student: Student) => {
   }
   emit("select", student);
   modalRef.value?.close();
+};
+
+const checkout = async () => {
+  if (!props.scannedEquipment) {
+    return;
+  }
+
+  checkoutLoading.value = true;
+
+  try {
+    const result = await equipmentStore.quickCheckout(props.scannedEquipment);
+    if (result.success) {
+      emit("quickCheckoutSuccess");
+      modalRef.value?.close();
+    }
+  } catch (error) {
+    console.error("Checkout error:", error);
+  } finally {
+    checkoutLoading.value = false;
+  }
 };
 
 const cancel = () => {
