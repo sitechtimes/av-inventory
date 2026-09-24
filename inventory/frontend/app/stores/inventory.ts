@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import {
+  placeholderInventory,
   placeholderStudentHistory,
+  placeholderStudents,
 } from "~/data/placeholderData";
 
 type SortKey = "name" | "studentName" | "barcode";
@@ -10,19 +12,8 @@ function cloneInventory(items: InventoryItem[]) {
   return items.map((item) => ({ ...item }));
 }
 
-type EquipmentResponse = {
-  name: string;
-  equipment_type: string;
-  owner: string;
-  current_condition: string;
-  status: InventoryStatus;
-};
-
 export const useInventoryStore = defineStore("inventory", () => {
-  const inventory = ref<InventoryItem[]>([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const students = ref<Student[]>([]);
+  const inventory = ref<InventoryItem[]>(cloneInventory(placeholderInventory));
   const selectedIds = ref<number[]>([]);
   const searchQuery = ref("");
   const categoryFilter = ref("all");
@@ -33,43 +24,6 @@ export const useInventoryStore = defineStore("inventory", () => {
   const noticeType = ref<NoticeType>("info");
 
   let noticeTimer: ReturnType<typeof setTimeout> | undefined;
-
-  async function fetchInventory() {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const [equipment, studentData] = await Promise.all([
-        requestEndpoint<EquipmentResponse[]>("equipment/equipment/", "GET"),
-        requestEndpoint<Student[]>("student/students/", "GET"),
-      ]);
-
-      students.value = studentData;
-      const studentsByOsis = new Map(
-        studentData.map((student) => [
-          student.osis,
-          `${student.last_name}, ${student.first_name}`,
-        ]),
-      );
-
-      inventory.value = equipment.map((item, index) => ({
-        id: index + 1,
-        name: item.name,
-        studentId: item.owner,
-        studentName: studentsByOsis.get(item.owner) ?? "Unassigned",
-        category: item.equipment_type,
-        barcode: item.name,
-        status: item.status,
-      }));
-    } catch (fetchError) {
-      error.value =
-        fetchError instanceof Error
-          ? fetchError.message
-          : "Unable to load inventory.";
-    } finally {
-      loading.value = false;
-    }
-  }
 
   const filteredItems = computed(() => {
     const query = searchQuery.value.trim().toLowerCase();
@@ -159,7 +113,7 @@ export const useInventoryStore = defineStore("inventory", () => {
   });
 
   const studentsWithDetails = computed(() => {
-    return students.value
+    return placeholderStudents
       .map((student) => {
         const itemsOut = inventory.value.filter(
           (item) =>
@@ -355,7 +309,7 @@ export const useInventoryStore = defineStore("inventory", () => {
   }
 
   function resetInventory() {
-    inventory.value = [];
+    inventory.value = cloneInventory(placeholderInventory);
     clearSelection();
     clearFilters();
     notice.value = "";
@@ -364,9 +318,6 @@ export const useInventoryStore = defineStore("inventory", () => {
 
   return {
     inventory,
-    loading,
-    error,
-    fetchInventory,
     searchQuery,
     categoryFilter,
     statusFilter,

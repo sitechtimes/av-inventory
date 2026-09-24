@@ -1,5 +1,6 @@
 ﻿<template>
   <div class="flex h-full min-h-0 flex-col overflow-hidden">
+    <button @click="equipmentStore.fetchEquipment">aewwaeeawawe</button>
     <InventorySearch
       v-model="searchQuery"
       :category="categoryFilter"
@@ -47,6 +48,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useInventoryStore } from "~/stores/inventory";
+import { useEquipmentStore } from "../stores/equipment";
+const equipmentStore = useEquipmentStore();
 
 const inventoryStore = useInventoryStore();
 
@@ -66,10 +69,6 @@ const {
   notice,
   noticeClass,
 } = storeToRefs(inventoryStore);
-
-onMounted(() => {
-  inventoryStore.fetchInventory();
-});
 
 function isSelected(id: number) {
   return inventoryStore.isSelected(id);
