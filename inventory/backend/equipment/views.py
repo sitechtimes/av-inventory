@@ -8,6 +8,7 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     serializer_class = EquipmentSerializer
     permission_classes = [IsAuthenticated]
     queryset = Equipment.objects.all()
+    lookup_field = 'name'
 
     def get_queryset(self):
         queryset = super().get_queryset()

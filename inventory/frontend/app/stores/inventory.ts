@@ -4,7 +4,6 @@ import {
   placeholderStudentHistory,
   placeholderStudents,
 } from "~/data/placeholderData";
-import type { InventoryItem } from "~~/utils/types/inventory";
 
 type SortKey = "name" | "studentName" | "barcode";
 type NoticeType = "success" | "info" | "error";
