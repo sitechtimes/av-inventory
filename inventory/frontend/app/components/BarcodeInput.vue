@@ -2,7 +2,6 @@
   <input
     ref="inputRef"
     :value="modelValue"
-    @keydown="handleKeydown"
     @paste="handlePaste"
     @blur="handleBlur"
     type="text"
@@ -23,13 +22,6 @@ const emit = defineEmits<{
 
 const inputRef = ref<HTMLInputElement>();
 
-const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === "v") {
-    return;
-  }
-  e.preventDefault();
-};
-
 const handlePaste = (event: ClipboardEvent) => {
   event.preventDefault();
   const pastedText = event.clipboardData?.getData("text/plain")?.trim();
@@ -42,6 +34,16 @@ const handlePaste = (event: ClipboardEvent) => {
 
 const handleBlur = () => {
   setTimeout(() => {
+    const activeElement = document.activeElement;
+    if (
+      activeElement instanceof HTMLElement &&
+      activeElement.matches(
+        "input, select, textarea, button, [contenteditable='true']",
+      )
+    ) {
+      return;
+    }
+
     inputRef.value?.focus();
   }, 0);
 };

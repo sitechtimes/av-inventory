@@ -1,4 +1,5 @@
 export type InventoryStatus = "Available" | "Checked out";
+export type ItemCondition = "GOOD" | "DAMAGED" | "LOST";
 
 export type InventoryItem = {
   id: number;
@@ -8,6 +9,7 @@ export type InventoryItem = {
   category: string;
   barcode: string;
   status: InventoryStatus;
+  condition: ItemCondition;
 };
 
 export type Student = {

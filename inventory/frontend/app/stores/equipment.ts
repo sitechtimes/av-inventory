@@ -1,22 +1,63 @@
 import { defineStore } from "pinia";
 
+type EquipmentRecord = {
+  name: string;
+  barcode: string;
+  equipment_type: string;
+  owner: string;
+  current_condition: string;
+  status: string;
+};
+
 export const useEquipmentStore = defineStore("equipment", () => {
-  const equipment = ref<InventoryItem[]>([]);
+  const equipment = ref<EquipmentRecord[]>([]);
   const statusLoading = ref(false);
   const statusError = ref<string | null>(null);
 
   const fetchEquipment = async () => {
-    const equipmentData = await requestEndpoint<InventoryItem[]>(
+    const equipmentData = await requestEndpoint<EquipmentRecord[]>(
       "equipment/equipment/",
       "GET",
     );
     equipment.value = equipmentData;
-    console.log(equipment.value);
+    return equipmentData;
+  };
+
+  const findEquipmentByBarcode = async (barcode: string) => {
+    const equipmentData = await fetchEquipment();
+    return equipmentData.find((item) => item.barcode === barcode);
+  };
+
+  const createEquipment = async (
+    equipmentName: string,
+    barcode: string,
+    category: string,
+    currentCondition = "",
+  ) => {
+    const result = await tryRequestEndpoint<EquipmentRecord>(
+      "equipment/equipment/",
+      "POST",
+      {
+        name: equipmentName,
+        barcode,
+        equipment_type: category,
+        owner: "000000000",
+        current_condition: currentCondition,
+      },
+    );
+
+    if (!("error" in result) && result.data) {
+      equipment.value.push(result.data);
+      return result.data;
+    }
+
+    throw new Error("Unable to create equipment. Check the barcode and category.");
   };
 
   const submitEquipmentStatus = async (
     equipmentName: string,
     student: Student,
+    currentCondition: string,
   ) => {
     if (!equipmentName || !student) {
       throw new Error("Missing equipment or student information.");
@@ -28,21 +69,35 @@ export const useEquipmentStore = defineStore("equipment", () => {
     try {
       const payload = {
         owner: student.osis,
+        current_condition: currentCondition,
       };
 
       const result = await tryRequestEndpoint(
-        `equipment/equipment/${equipmentName}/`,
+        `equipment/equipment/${encodeURIComponent(equipmentName)}/`,
         "PATCH",
         payload,
       );
 
-      if (result) console.log(`updated ${equipmentName}`);
+      if (!(("error" in result) || !result.data)) {
+        return {
+          success: true,
+          message: `Updated ${equipmentName}`,
+        };
+      }
+
+      throw new Error(`Failed to assign ${equipmentName}`);
     } catch (e) {
-      console.error(e);
+      const errorMessage =
+        e instanceof Error ? e.message : "An error occurred. Please try again.";
+      statusError.value = errorMessage;
+      console.error("Store: Error assigning equipment:", e);
+      throw e;
+    } finally {
+      statusLoading.value = false;
     }
   };
 
-  const checkout = async (equipmentName: string) => {
+  const checkout = async (equipmentName: string, currentCondition: string) => {
     if (!equipmentName) {
       throw new Error("Missing equipment information.");
     }
@@ -53,10 +108,11 @@ export const useEquipmentStore = defineStore("equipment", () => {
     try {
       const payload = {
         owner: "000000000",
+        current_condition: currentCondition,
       };
 
       const result = await tryRequestEndpoint(
-        `equipment/equipment/${equipmentName}/`,
+        `equipment/equipment/${encodeURIComponent(equipmentName)}/`,
         "PATCH",
         payload,
       );
@@ -83,6 +139,8 @@ export const useEquipmentStore = defineStore("equipment", () => {
   return {
     statusLoading,
     statusError,
+    findEquipmentByBarcode,
+    createEquipment,
     submitEquipmentStatus,
     checkout,
     fetchEquipment,

@@ -17,21 +17,57 @@
         <p class="text-base-content/70">No students found</p>
       </div>
 
-      <div v-else class="space-y-2 max-h-96 overflow-y-auto">
-        <button
-          v-for="student in students"
-          :key="student.osis"
-          type="button"
-          @click="selectStudent(student)"
-          class="w-full btn btn-ghost justify-start text-left"
+      <div v-else>
+        <label for="student-select" class="sr-only">Student</label>
+        <select
+          id="student-select"
+          v-model="selectedOsis"
+          class="select select-bordered w-full"
         >
-          {{ student.first_name }} {{ student.osis }}
-        </button>
+          <option value="" disabled>Select a student</option>
+          <option
+            v-for="student in students"
+            :key="student.osis"
+            :value="student.osis"
+          >
+            {{ student.first_name }} {{ student.last_name }} ({{
+              student.osis
+            }})
+          </option>
+        </select>
+      </div>
+
+      <div class="mt-4">
+        <p class="text-sm text-base-content/70 mb-2">
+          Initial condition: {{ conditionLabel(initialCondition) }}
+        </p>
+        <label for="equipment-condition" class="label">
+          <span class="label-text">Condition</span>
+        </label>
+        <select
+          id="equipment-condition"
+          v-model="selectedCondition"
+          class="select select-bordered w-full"
+        >
+          <option value="">No condition</option>
+          <option value="GOOD">Good</option>
+          <option value="DAMAGED">Damaged</option>
+          <option value="LOST">Lost</option>
+        </select>
       </div>
 
       <div class="divider"></div>
 
-      <!-- Checkout Button -->
+      <button
+        type="button"
+        @click="assign"
+        :disabled="!selectedStudent || checkoutLoading"
+        class="w-full btn btn-primary"
+      >
+        <span v-if="!checkoutLoading">Assign to student</span>
+        <span v-else class="loading loading-spinner loading-sm"></span>
+      </button>
+
       <button
         type="button"
         @click="checkout"
@@ -59,7 +95,8 @@ const props = defineProps<{
   students: Student[];
   loading: boolean;
   error: string | null;
-  scannedEquipment: string;
+  equipmentName: string;
+  initialCondition: string;
 }>();
 
 const emit = defineEmits<{
@@ -70,24 +107,56 @@ const emit = defineEmits<{
 
 const modalRef = ref<HTMLDialogElement>();
 const checkoutLoading = ref(false);
+const selectedOsis = ref("");
+const selectedCondition = ref("");
 
-const selectStudent = (student: Student) => {
-  if (!student || !student.osis) {
-    return;
+const conditionLabel = (condition: string) => {
+  if (!condition) {
+    return "None";
   }
-  emit("select", student);
-  modalRef.value?.close();
+
+  return condition.charAt(0) + condition.slice(1).toLowerCase();
 };
 
-const checkout = async () => {
-  if (!props.scannedEquipment) {
+const selectedStudent = computed(() =>
+  props.students.find((student) => student.osis === selectedOsis.value),
+);
+
+const assign = async () => {
+  if (!props.equipmentName || !selectedStudent.value) {
     return;
   }
 
   checkoutLoading.value = true;
 
   try {
-    const result = await equipmentStore.quickCheckout(props.scannedEquipment);
+    await equipmentStore.submitEquipmentStatus(
+      props.equipmentName,
+      selectedStudent.value,
+      selectedCondition.value,
+    );
+    emit("select", selectedStudent.value);
+    emit("quickCheckoutSuccess");
+    modalRef.value?.close();
+  } catch (error) {
+    console.error("Assignment error:", error);
+  } finally {
+    checkoutLoading.value = false;
+  }
+};
+
+const checkout = async () => {
+  if (!props.equipmentName) {
+    return;
+  }
+
+  checkoutLoading.value = true;
+
+  try {
+    const result = await equipmentStore.checkout(
+      props.equipmentName,
+      selectedCondition.value,
+    );
     if (result.success) {
       emit("quickCheckoutSuccess");
       modalRef.value?.close();
@@ -105,7 +174,11 @@ const cancel = () => {
 };
 
 defineExpose({
-  open: () => modalRef.value?.showModal(),
+  open: () => {
+    selectedOsis.value = "";
+    selectedCondition.value = props.initialCondition;
+    modalRef.value?.showModal();
+  },
   close: () => modalRef.value?.close(),
 });
 </script>

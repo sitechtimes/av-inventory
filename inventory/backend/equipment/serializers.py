@@ -7,7 +7,12 @@ class EquipmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['name', 'equipment_type', 'owner', 'current_condition', 'status']
+        fields = ['name', 'barcode', 'equipment_type', 'owner', 'current_condition', 'status']
+
+    def validate_barcode(self, value):
+        if self.instance and self.instance.barcode != value:
+            raise serializers.ValidationError("Barcode cannot be changed.")
+        return value
 
     def get_status(self, obj):
         return obj.status
