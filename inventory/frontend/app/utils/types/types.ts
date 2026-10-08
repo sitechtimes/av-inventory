@@ -1,8 +1,9 @@
 export type InventoryStatus = "Available" | "Checked out";
-export type ItemCondition = "GOOD" | "DAMAGED" | "LOST";
+export type ItemCondition = "GOOD" | "DAMAGED" | "LOST" | "";
+export type InventoryId = string | number;
 
 export type InventoryItem = {
-  id: number;
+  id: InventoryId;
   name: string;
   studentId: string;
   studentName: string;

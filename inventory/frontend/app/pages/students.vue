@@ -7,7 +7,20 @@
       </p>
     </div>
 
-    <div class="panel-shell divide-y divide-base-300 overflow-hidden">
+    <div v-if="loading" class="py-8 text-center text-sm text-base-content/70">
+      Loading students...
+    </div>
+    <div v-else-if="error" class="alert alert-error mb-4" role="alert">
+      <span>{{ error }}</span>
+      <button class="btn btn-sm" type="button" @click="loadInventory">
+        Retry
+      </button>
+    </div>
+
+    <div
+      v-else
+      class="panel-shell divide-y divide-base-300 overflow-hidden"
+    >
       <details
         v-for="student in studentsWithDetails"
         :key="student.osis"
@@ -93,5 +106,13 @@ import { storeToRefs } from "pinia";
 import { useInventoryStore } from "~/stores/inventory";
 
 const inventoryStore = useInventoryStore();
-const { studentsWithDetails } = storeToRefs(inventoryStore);
+const { studentsWithDetails, loading, error } = storeToRefs(inventoryStore);
+
+function loadInventory() {
+  void inventoryStore.fetchInventory().catch((loadError) => {
+    console.error("Page: Error loading student inventory:", loadError);
+  });
+}
+
+onMounted(loadInventory);
 </script>

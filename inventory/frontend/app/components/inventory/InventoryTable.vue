@@ -24,7 +24,7 @@
                 @change="toggleAll"
               />
             </th>
-            <th>Item</th>
+            <th>Item Name</th>
             <th>Student ID</th>
             <th>Student Name</th>
             <th>Category</th>
@@ -49,11 +49,11 @@ defineProps<{
   items: InventoryItem[];
   selectedCount: number;
   allSelected: boolean;
-  isSelected: (id: number) => boolean;
+  isSelected: (id: InventoryId) => boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "toggleItem", id: number): void;
+  (e: "toggleItem", id: InventoryId): void;
   (e: "selectAll"): void;
   (e: "clearSelection"): void;
   (e: "editSelection"): void;

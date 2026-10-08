@@ -40,11 +40,11 @@
 <script setup lang="ts">
 defineProps<{
   items: InventoryItem[];
-  isSelected: (id: number) => boolean;
+  isSelected: (id: InventoryId) => boolean;
 }>();
 
 defineEmits<{
-  (e: "toggleItem", id: number): void;
+  (e: "toggleItem", id: InventoryId): void;
 }>();
 
 function statusClass(status: string) {

@@ -24,11 +24,14 @@
       <div v-if="lookupError" class="alert alert-error mt-4" role="alert">
         <span>{{ lookupError }}</span>
       </div>
+      <div v-if="successMessage" class="alert alert-success mt-4" role="status">
+        <span>{{ successMessage }}</span>
+      </div>
 
       <form
         v-if="showCreateForm"
         class="mt-6 space-y-4 text-left"
-        @submit.prevent="createScannedEquipment"
+        @submit.prevent="createScannedEquipment(true)"
       >
         <h3 class="text-lg font-semibold">Equipment not found</h3>
         <label class="form-control w-full">
@@ -92,16 +95,31 @@
             <option value="LOST">Lost</option>
           </select>
         </label>
-        <button
-          type="submit"
-          class="btn btn-primary w-full"
-          :disabled="
-            creatingEquipment || !equipmentName.trim() || !categoryValue
-          "
-        >
-          <span v-if="!creatingEquipment">Create equipment</span>
-          <span v-else class="loading loading-spinner loading-sm"></span>
-        </button>
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            class="btn btn-outline flex-1"
+            :disabled="
+              creatingEquipment || !equipmentName.trim() || !categoryValue
+            "
+            @click="createScannedEquipment(false)"
+          >
+            <span v-if="!creatingEquipment">Create equipment</span>
+            <span v-else class="loading loading-spinner loading-sm"></span>
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary flex-1"
+            :disabled="
+              creatingEquipment || !equipmentName.trim() || !categoryValue
+            "
+          >
+            <span v-if="!creatingEquipment">
+              Create equipment and assign to student
+            </span>
+            <span v-else class="loading loading-spinner loading-sm"></span>
+          </button>
+        </div>
       </form>
     </div>
 
@@ -133,6 +151,7 @@ const newCategoryName = ref("");
 const newEquipmentCondition = ref("");
 const creatingEquipment = ref(false);
 const lookupError = ref("");
+const successMessage = ref("");
 
 const predefinedCategories = [
   { value: "BAG", label: "Camera Bag" },
@@ -193,6 +212,7 @@ const handleEquipmentScanned = async (barcode: string) => {
   newCategoryName.value = "";
   newEquipmentCondition.value = "";
   lookupError.value = "";
+  successMessage.value = "";
 
   try {
     const existingEquipment =
@@ -218,7 +238,7 @@ const handleEquipmentScanned = async (barcode: string) => {
   }, 100);
 };
 
-const createScannedEquipment = async () => {
+const createScannedEquipment = async (assignToStudent: boolean) => {
   const name = equipmentName.value.trim();
   const category = categoryValue.value;
   if (!scannedEquipment.value || !name || name.length > 100 || !category) {
@@ -238,14 +258,19 @@ const createScannedEquipment = async () => {
     equipmentName.value = createdEquipment.name;
     equipmentCondition.value = createdEquipment.current_condition;
     showCreateForm.value = false;
+    successMessage.value = assignToStudent
+      ? ""
+      : "Equipment created successfully.";
 
-    if (studentStore.students.length === 0) {
-      await fetchStudents();
+    if (assignToStudent) {
+      if (studentStore.students.length === 0) {
+        await fetchStudents();
+      }
+
+      setTimeout(() => {
+        studentModalRef.value?.open();
+      }, 100);
     }
-
-    setTimeout(() => {
-      studentModalRef.value?.open();
-    }, 100);
   } catch (error) {
     lookupError.value =
       error instanceof Error ? error.message : "Unable to create equipment.";
@@ -281,6 +306,7 @@ const resetScan = () => {
   selectedCategory.value = "";
   newCategoryName.value = "";
   lookupError.value = "";
+  successMessage.value = "";
   barcodeInputRef.value?.focus();
 };
 
@@ -296,6 +322,7 @@ const handleCheckout = () => {
     selectedCategory.value = "";
     newCategoryName.value = "";
     lookupError.value = "";
+    successMessage.value = "";
     barcodeInputRef.value?.focus();
   }, 1500);
 };
