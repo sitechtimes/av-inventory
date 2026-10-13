@@ -31,8 +31,9 @@ class Equipment(models.Model):
         ("DAMAGED", "DAMAGED"),
         ("LOST", "LOST"),
     ]
-    name = models.CharField(max_length=15, primary_key=True)
-    equipment_type = models.CharField(max_length=7, choices=EQUIPMENT_CHOICES)
+    name = models.CharField(max_length=100, primary_key=True)
+    barcode = models.CharField(max_length=15, unique=True)
+    equipment_type = models.CharField(max_length=50)
     owner = models.ForeignKey(
         Student, on_delete=models.SET_DEFAULT, default="000000000"  # van buren is the dummy 000000000 osis so things dont have to be nullable
     )

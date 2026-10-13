@@ -1,5 +1,6 @@
-﻿<template>
+<template>
   <div class="flex h-full min-h-0 flex-col overflow-hidden">
+    <button @click="equipmentStore.fetchEquipment">aewwaeeawawe</button>
     <InventorySearch
       v-model="searchQuery"
       :category="categoryFilter"
@@ -19,7 +20,24 @@
       :checked-out="checkedOutCount"
     />
 
-    <div class="min-h-0 flex-1 px-4 pb-4 md:px-6 md:pb-6">
+    <div
+      v-if="loading"
+      class="flex min-h-0 flex-1 items-center justify-center text-sm text-base-content/70"
+      role="status"
+    >
+      Loading inventory...
+    </div>
+    <div
+      v-else-if="error"
+      class="alert alert-error mx-4 mb-4 md:mx-6"
+      role="alert"
+    >
+      <span>{{ error }}</span>
+      <button class="btn btn-sm" type="button" @click="loadInventory">
+        Retry
+      </button>
+    </div>
+    <div v-else class="min-h-0 flex-1 px-4 pb-4 md:px-6 md:pb-6">
       <InventoryTable
         :items="filteredItems"
         :selected-count="selectedCount"
@@ -47,6 +65,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useInventoryStore } from "~/stores/inventory";
+import { useEquipmentStore } from "../stores/equipment";
+const equipmentStore = useEquipmentStore();
 
 const inventoryStore = useInventoryStore();
 
@@ -56,6 +76,8 @@ const {
   statusFilter,
   sortKey,
   sortDirection,
+  loading,
+  error,
   filteredItems,
   availableCategories,
   availableStatuses,
@@ -67,9 +89,17 @@ const {
   noticeClass,
 } = storeToRefs(inventoryStore);
 
-function isSelected(id: number) {
+function isSelected(id: InventoryId) {
   return inventoryStore.isSelected(id);
 }
+
+function loadInventory() {
+  void inventoryStore.fetchInventory().catch((loadError) => {
+    console.error("Page: Error loading inventory:", loadError);
+  });
+}
+
+onMounted(loadInventory);
 
 onBeforeUnmount(() => {
   inventoryStore.clearNoticeTimer();
