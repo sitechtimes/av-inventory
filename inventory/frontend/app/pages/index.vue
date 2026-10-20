@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-full min-h-0 flex-col overflow-hidden">
-    <button @click="equipmentStore.fetchEquipment">aewwaeeawawe</button>
     <InventorySearch
       v-model="searchQuery"
       :category="categoryFilter"

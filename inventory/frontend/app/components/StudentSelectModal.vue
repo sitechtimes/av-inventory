@@ -106,11 +106,11 @@ const emit = defineEmits<{
 }>();
 
 const modalRef = ref<HTMLDialogElement>();
-const checkoutLoading = ref(false);
-const selectedOsis = ref("");
-const selectedCondition = ref("");
+const checkoutLoading = ref<boolean>(false);
+const selectedOsis = ref<string>("");
+const selectedCondition = ref<string>("");
 
-const conditionLabel = (condition: string) => {
+const conditionLabel = (condition: string): string => {
   if (!condition) {
     return "None";
   }
@@ -118,12 +118,13 @@ const conditionLabel = (condition: string) => {
   return condition.charAt(0) + condition.slice(1).toLowerCase();
 };
 
-const selectedStudent = computed(() =>
+const selectedStudent = computed<Student | undefined>(() =>
   props.students.find((student) => student.osis === selectedOsis.value),
 );
 
-const assign = async () => {
-  if (!props.equipmentName || !selectedStudent.value) {
+const assign = async (): Promise<void> => {
+  const student = selectedStudent.value;
+  if (!props.equipmentName || !student) {
     return;
   }
 
@@ -132,10 +133,10 @@ const assign = async () => {
   try {
     await equipmentStore.submitEquipmentStatus(
       props.equipmentName,
-      selectedStudent.value,
+      student,
       selectedCondition.value,
     );
-    emit("select", selectedStudent.value);
+    emit("select", student);
     emit("quickCheckoutSuccess");
     modalRef.value?.close();
   } catch (error) {
@@ -145,7 +146,7 @@ const assign = async () => {
   }
 };
 
-const checkout = async () => {
+const checkout = async (): Promise<void> => {
   if (!props.equipmentName) {
     return;
   }
@@ -168,17 +169,21 @@ const checkout = async () => {
   }
 };
 
-const cancel = () => {
+const cancel = (): void => {
   emit("cancel");
   modalRef.value?.close();
 };
 
+const open = (): void => {
+  selectedOsis.value = "";
+  selectedCondition.value = props.initialCondition;
+  modalRef.value?.showModal();
+};
+
+const close = (): void => modalRef.value?.close();
+
 defineExpose({
-  open: () => {
-    selectedOsis.value = "";
-    selectedCondition.value = props.initialCondition;
-    modalRef.value?.showModal();
-  },
-  close: () => modalRef.value?.close(),
+  open,
+  close,
 });
 </script>

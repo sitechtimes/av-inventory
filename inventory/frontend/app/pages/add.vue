@@ -28,99 +28,19 @@
         <span>{{ successMessage }}</span>
       </div>
 
-      <form
+      <AddEquipmentCreateForm
         v-if="showCreateForm"
-        class="mt-6 space-y-4 text-left"
-        @submit.prevent="createScannedEquipment(true)"
-      >
-        <h3 class="text-lg font-semibold">Equipment not found</h3>
-        <label class="form-control w-full">
-          <span class="label-text mb-2">Barcode</span>
-          <input
-            :value="scannedEquipment"
-            type="text"
-            class="input input-bordered w-full"
-            maxlength="15"
-            readonly
-          />
-          <span class="label-text-alt mt-1">Barcode cannot be changed</span>
-        </label>
-        <label class="form-control w-full">
-          <span class="label-text mb-2">Equipment name</span>
-          <input
-            v-model="equipmentName"
-            type="text"
-            class="input input-bordered w-full"
-            maxlength="100"
-            required
-          />
-        </label>
-        <label class="form-control w-full">
-          <span class="label-text mb-2">Category</span>
-          <select
-            v-model="selectedCategory"
-            class="select select-bordered w-full"
-            required
-          >
-            <option value="" disabled>Select a category</option>
-            <option
-              v-for="category in categoryOptions"
-              :key="category.value"
-              :value="category.value"
-            >
-              {{ category.label }}
-            </option>
-            <option value="__new_category__">Create a new category</option>
-          </select>
-        </label>
-        <label v-if="creatingCategory" class="form-control w-full">
-          <span class="label-text mb-2">New category name</span>
-          <input
-            v-model="newCategoryName"
-            type="text"
-            class="input input-bordered w-full"
-            maxlength="50"
-            required
-          />
-        </label>
-        <label class="form-control w-full">
-          <span class="label-text mb-2">Initial condition</span>
-          <select
-            v-model="newEquipmentCondition"
-            class="select select-bordered w-full"
-          >
-            <option value="">No condition</option>
-            <option value="GOOD">Good</option>
-            <option value="DAMAGED">Damaged</option>
-            <option value="LOST">Lost</option>
-          </select>
-        </label>
-        <div class="flex flex-col gap-2 sm:flex-row">
-          <button
-            type="button"
-            class="btn btn-outline flex-1"
-            :disabled="
-              creatingEquipment || !equipmentName.trim() || !categoryValue
-            "
-            @click="createScannedEquipment(false)"
-          >
-            <span v-if="!creatingEquipment">Create equipment</span>
-            <span v-else class="loading loading-spinner loading-sm"></span>
-          </button>
-          <button
-            type="submit"
-            class="btn btn-primary flex-1"
-            :disabled="
-              creatingEquipment || !equipmentName.trim() || !categoryValue
-            "
-          >
-            <span v-if="!creatingEquipment">
-              Create equipment and assign to student
-            </span>
-            <span v-else class="loading loading-spinner loading-sm"></span>
-          </button>
-        </div>
-      </form>
+        :barcode="scannedEquipment"
+        v-model:equipment-name="equipmentName"
+        v-model:selected-category="selectedCategory"
+        v-model:new-category-name="newCategoryName"
+        v-model:new-equipment-condition="newEquipmentCondition"
+        :category-options="categoryOptions"
+        :creating-category="creatingCategory"
+        :can-create="canCreateEquipment"
+        :creating-equipment="creatingEquipment"
+        @create="createScannedEquipment"
+      />
     </div>
 
     <StudentSelectModal
@@ -198,6 +118,12 @@ const categoryValue = computed(() =>
   creatingCategory.value
     ? newCategoryName.value.trim()
     : selectedCategory.value,
+);
+const canCreateEquipment = computed(
+  () =>
+    !creatingEquipment.value &&
+    !!equipmentName.value.trim() &&
+    !!categoryValue.value,
 );
 
 const barcodeInputRef = ref();
@@ -281,9 +207,7 @@ const createScannedEquipment = async (assignToStudent: boolean) => {
 
 const fetchStudents = async () => {
   try {
-    console.log("Fetching students...");
     await studentStore.fetchStudents();
-    console.log("Students fetched:", studentStore.students);
   } catch (e) {
     console.error("Error fetching students:", e);
   }
