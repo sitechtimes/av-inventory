@@ -1,21 +1,23 @@
 import { defineStore } from "pinia";
-import {
-  placeholderInventory,
-  placeholderStudentHistory,
-  placeholderStudents,
-} from "~/data/placeholderData";
-import type { InventoryItem } from "~~/utils/types/inventory";
+import type {
+  EquipmentRecord,
+  InventoryId,
+  InventoryItem,
+  InventoryStatus,
+  ItemCondition,
+  StudentHistoryEntry,
+} from "~/types";
+import { useStudentStore } from "~/stores/student";
 
 type SortKey = "name" | "studentName" | "barcode";
 type NoticeType = "success" | "info" | "error";
 
-function cloneInventory(items: InventoryItem[]) {
-  return items.map((item) => ({ ...item }));
-}
-
 export const useInventoryStore = defineStore("inventory", () => {
-  const inventory = ref<InventoryItem[]>(cloneInventory(placeholderInventory));
-  const selectedIds = ref<number[]>([]);
+  const studentStore = useStudentStore();
+  const inventory = ref<InventoryItem[]>([]);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  const selectedIds = ref<InventoryId[]>([]);
   const searchQuery = ref("");
   const categoryFilter = ref("all");
   const statusFilter = ref("all");
@@ -25,6 +27,50 @@ export const useInventoryStore = defineStore("inventory", () => {
   const noticeType = ref<NoticeType>("info");
 
   let noticeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  async function fetchInventory() {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const [equipment] = await Promise.all([
+        requestEndpoint<EquipmentRecord[]>("equipment/equipment/", "GET"),
+        studentStore.fetchStudents(),
+      ]);
+      const studentsByOsis = new Map(
+        studentStore.students.map((student) => [student.osis, student]),
+      );
+
+      inventory.value = equipment.map((item) => {
+        const student = studentsByOsis.get(item.owner);
+
+        return {
+          id: item.name,
+          name: item.name,
+          studentId: item.owner,
+          studentName: student
+            ? `${student.last_name}, ${student.first_name}`
+            : item.owner === "000000000"
+              ? "Unassigned"
+              : "Unknown student",
+          category: item.equipment_type,
+          barcode: item.barcode,
+          status: item.status,
+          condition: item.current_condition,
+        };
+      });
+      selectedIds.value = selectedIds.value.filter((id) =>
+        inventory.value.some((item) => item.id === id),
+      );
+    } catch (e) {
+      error.value =
+        e instanceof Error ? e.message : "Unable to load inventory.";
+      console.error("Store: Error fetching inventory:", e);
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
 
   const filteredItems = computed(() => {
     const query = searchQuery.value.trim().toLowerCase();
@@ -114,31 +160,29 @@ export const useInventoryStore = defineStore("inventory", () => {
   });
 
   const studentsWithDetails = computed(() => {
-    return placeholderStudents
+    return studentStore.students
       .map((student) => {
         const itemsOut = inventory.value.filter(
           (item) =>
             item.studentId === student.osis && item.status === "Checked out",
         );
 
-        const history = placeholderStudentHistory.filter(
-          (entry) => entry.studentId === student.osis,
-        );
-
         return {
           ...student,
+          firstName: student.first_name,
+          lastName: student.last_name,
           itemsOut,
-          history,
+          history: [] as StudentHistoryEntry[],
         };
       })
       .sort((a, b) => a.lastName.localeCompare(b.lastName));
   });
 
-  function isSelected(id: number) {
+  function isSelected(id: InventoryId) {
     return selectedIds.value.includes(id);
   }
 
-  function toggleItem(id: number) {
+  function toggleItem(id: InventoryId) {
     if (selectedIds.value.includes(id)) {
       selectedIds.value = selectedIds.value.filter(
         (selectedId) => selectedId !== id,
@@ -309,16 +353,11 @@ export const useInventoryStore = defineStore("inventory", () => {
     noticeTimer = undefined;
   }
 
-  function resetInventory() {
-    inventory.value = cloneInventory(placeholderInventory);
-    clearSelection();
-    clearFilters();
-    notice.value = "";
-    clearNoticeTimer();
-  }
-
   return {
     inventory,
+    loading,
+    error,
+    fetchInventory,
     searchQuery,
     categoryFilter,
     statusFilter,
@@ -347,7 +386,6 @@ export const useInventoryStore = defineStore("inventory", () => {
     exportSelection,
     showNotice,
     clearNoticeTimer,
-    resetInventory,
   };
 });
 
