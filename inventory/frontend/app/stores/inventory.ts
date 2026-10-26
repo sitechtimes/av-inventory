@@ -1,17 +1,16 @@
 import { defineStore } from "pinia";
+import type {
+  EquipmentRecord,
+  InventoryId,
+  InventoryItem,
+  InventoryStatus,
+  ItemCondition,
+  StudentHistoryEntry,
+} from "~/types";
 import { useStudentStore } from "~/stores/student";
 
 type SortKey = "name" | "studentName" | "barcode";
 type NoticeType = "success" | "info" | "error";
-
-type EquipmentRecord = {
-  name: string;
-  barcode: string;
-  equipment_type: string;
-  owner: string;
-  current_condition: ItemCondition;
-  status: InventoryStatus;
-};
 
 export const useInventoryStore = defineStore("inventory", () => {
   const studentStore = useStudentStore();

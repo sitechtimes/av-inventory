@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Student } from "~/types";
 
 export const useStudentStore = defineStore("students", () => {
   const students = ref<Student[]>([]);

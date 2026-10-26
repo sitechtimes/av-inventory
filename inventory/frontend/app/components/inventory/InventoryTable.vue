@@ -28,6 +28,7 @@
             <th>Student ID</th>
             <th>Student Name</th>
             <th>Category</th>
+            <th>Condition</th>
             <th>Status</th>
             <th>Barcode</th>
           </tr>
@@ -45,6 +46,8 @@
 </template>
 
 <script setup lang="ts">
+import type { InventoryId, InventoryItem } from "~/types";
+
 defineProps<{
   items: InventoryItem[];
   selectedCount: number;

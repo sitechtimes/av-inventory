@@ -1,13 +1,5 @@
 import { defineStore } from "pinia";
-
-type EquipmentRecord = {
-  name: string;
-  barcode: string;
-  equipment_type: string;
-  owner: string;
-  current_condition: string;
-  status: string;
-};
+import type { EquipmentRecord, Student } from "~/types";
 
 export const useEquipmentStore = defineStore("equipment", () => {
   const equipment = ref<EquipmentRecord[]>([]);

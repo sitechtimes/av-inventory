@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
+import type { InventoryId } from "~/types";
 import { useInventoryStore } from "~/stores/inventory";
 import { useEquipmentStore } from "../stores/equipment";
 const equipmentStore = useEquipmentStore();

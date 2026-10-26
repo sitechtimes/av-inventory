@@ -13,6 +13,15 @@ export type InventoryItem = {
   condition: ItemCondition;
 };
 
+export type EquipmentRecord = {
+  name: string;
+  barcode: string;
+  equipment_type: string;
+  owner: string;
+  current_condition: ItemCondition;
+  status: InventoryStatus;
+};
+
 export type Student = {
   osis: string;
   first_name: string;

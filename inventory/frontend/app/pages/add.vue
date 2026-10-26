@@ -58,6 +58,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Student } from "~/types";
+
 const studentStore = useStudentStore();
 const equipmentStore = useEquipmentStore();
 

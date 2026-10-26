@@ -89,6 +89,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Student } from "~/types";
+
 const equipmentStore = useEquipmentStore();
 
 const props = defineProps<{
